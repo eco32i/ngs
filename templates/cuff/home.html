@@ -1,0 +1,51 @@
+{% extends 'cuff/base.html' %}
+{% block content %}
+<div class="hero-unit">
+    <h1>cuffdiff results summary</h1>
+    <p>Samples: {{ samples|join:", " }} </p>
+    <hr class="soften"/>
+    <div class="row-fluid">
+        <div class="span3">
+            <h2><a href="{% url 'cuff_gene_view' %}">Genes</a></h2>
+            <p>{{ stat.genes }} genes</p>
+        </div>
+        <div class="span3">
+            <h2><a href="{% url 'cuff_isoform_view' %}">Isoforms</a></h2>
+            <p>{{ stat.isoforms }} isoforms</p>
+        </div>
+        <div class="span3">
+            <h2><a href="{% url 'cuff_tss_view' %}">TSS</a></h2>
+            <p>{{ stat.TSS }} TSS groups</p>
+        </div>
+        <div class="span3">
+            <h2><a href="{% url 'cuff_cds_view' %}">CDS</a></h2>
+            <p>{{ stat.CDS }} CDSs</p>
+        </div>
+    </div>
+    <hr class="soften"/>
+    <div class="row-fluid">
+        <div class="span4">
+            <h2><a href="{% url 'cuff_promoters_view' %}">Promoters</a></h2>
+            <p>{{ stat.promoters }} promoters</p>
+        </div>
+        <div class="span4">
+            <h2><a href="{% url 'cuff_splicing_view' %}">Splicing</a></h2>
+            <p>{{ stat.splicing }} splice variants</p>
+        </div>
+        <div class="span4">
+            <h2><a href="{% url 'cuff_relcds_view' %}">Rel CDS</a></h2>
+            <p>{{ stat.relCDS }} rel CDS</p>
+        </div>
+    </div>
+    <hr class="soften"/>
+</div>
+{% endblock %}
+{% block footer %}
+    <dl class="dl-horizontal">
+        {% for info in object_list %}
+            <dt>{{ info.key }}</dt>
+            <dd><code>{{ info.value }}</code></dd>
+        {% endfor %}
+    </dl>
+{% endblock %}
+

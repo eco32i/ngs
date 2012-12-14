@@ -1,0 +1,22 @@
+{% extends 'cuff/track_base.html' %}
+{% block filters %}
+    {{ form.isoform_id }}
+    {{ form.gene__gene_short_name }}
+    {{ form.gene__gene_id }}
+{% endblock %}
+
+{% block track_thead %}
+    <th>Isoform id</th>
+    <th>TSS group id</th>
+    <th>Gene short name</th>
+    <th>Gene id</th>
+    <th>Locus</th>
+    <th>Length</th>
+    <th>Coverage</th>
+{% endblock %}
+
+{% block track_tbody %}
+    {% for isoform in object_list %}
+        {% include 'cuff/includes/isoform.html' %}
+    {% endfor %}
+{% endblock %}

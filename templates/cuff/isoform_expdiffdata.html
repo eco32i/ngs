@@ -1,0 +1,30 @@
+{% extends 'cuff/track_base.html' %}
+{% block title %}{{ block.super }} - isoform diff{% endblock %}
+{% block filters %}
+    {{ form.isoform__gene__gene_short_name }}
+    {{ form.isoform__gene__gene_id }}
+    {{ form.p_value__lte }}
+    {{ form.q_value__lte }}
+    {{ form.significant }}
+{% endblock %}
+
+{% block track_thead %}
+    <th>Isoform id</th>
+    <th>TSS group id</th>
+    <th>Gene short name</th>
+    <th>Gene id</th>
+    <th>Value 1</th>
+    <th>Value 2</th>
+    <th>Log<sub>2</sub> fold change</th>
+    <th>Status</th>
+    <th>Test stat</th>
+    <th>p value</th>
+    <th>q value</th>
+    <th>Significant</th>
+{% endblock %}
+
+{% block track_tbody %}
+    {% for isoformdiff in object_list %}
+        <tr{% if isoformdiff.significant == "YES" %} class="success"{% endif %}>{% include 'cuff/includes/isoformexpdiffdata.html' %}</tr>
+    {% endfor %}
+{% endblock %}

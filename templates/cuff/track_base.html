@@ -1,0 +1,24 @@
+{% extends 'cuff/base.html' %}
+{% load pagination_tags %}
+{% block content %}
+    <div class="span12">
+        <form class="form-inline" action="." method="GET">
+            <fieldset>
+                {% block filters %}{% endblock %}
+                <button type="submit" class="btn btn-info">Filter</button>
+                <button type="submit" class="btn" value="_clear">Clear</button>
+            </fieldset>
+        </form>
+    </div>
+    <div class="span12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>{% block track_thead %}{% endblock %}</tr>
+            </thead>
+            {% autopaginate object_list 100 %}
+            {% block track_tbody %}{% endblock %}
+        </table>
+        {% paginate %}
+    </div>
+    <hr class="soften"/>
+{% endblock %}

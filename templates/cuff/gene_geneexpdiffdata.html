@@ -1,0 +1,28 @@
+{% extends 'cuff/track_base.html' %}
+{% block title %}{{ block.super }} - gene diff{% endblock %}
+{% block filters %}
+    {{ form.gene__gene_short_name }}
+    {{ form.gene__gene_id }}
+    {{ form.p_value__lte }}
+    {{ form.q_value__lte }}
+    {{ form.significant }}
+{% endblock %}
+
+{% block track_thead %}
+    <th>Short name</th>
+    <th>Gene id</th>
+    <th>Value 1</th>
+    <th>Value 2</th>
+    <th>Log<sub>2</sub> fold change</th>
+    <th>Status</th>
+    <th>Test stat</th>
+    <th><a class="btn btn-small btn-block" href="?o=p_value">p value <i class="icon-chevron-up"></i></a></th>
+    <th>q value</th>
+    <th>Significant</th>
+{% endblock %}
+
+{% block track_tbody %}
+    {% for genediff in object_list %}
+        <tr{% if genediff.significant == "YES" %} class="success"{% endif %}>{% include 'cuff/includes/geneexpdiffdata.html' %}</tr>
+    {% endfor %}
+{% endblock %}

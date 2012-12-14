@@ -1,0 +1,25 @@
+{% extends 'cuff/track_base.html' %}
+{% block filters %}
+    {{ form.sample__pk }}
+    {{ form.isoform__gene__gene_short_name }}
+    {{ form.isoform__gene__gene_id }}
+    {{ form.fpkm__gte }}
+{% endblock %}
+
+{% block track_thead %}
+    <th>Isoform id</th>
+    <th>TSS group id</th>
+    <th>Gene short name</th>
+    <th>Gene id</th>
+    <th>Sample</th>
+    <th>FPKM</th>
+    <th>Conf Hi</th>
+    <th>Conf Lo</th>
+    <th>Status</th>
+{% endblock %}
+
+{% block track_tbody %}
+    {% for isoformdata in object_list %}
+        {% include 'cuff/includes/isoformdata.html' %}
+    {% endfor %}
+{% endblock %}
