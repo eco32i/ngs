@@ -1,17 +1,17 @@
 {% extends 'cuff/track_base.html' %}
+{% load cuff_tags %}
 {% block filters %}
     {{ form.sample__pk }}
-    {{ form.tss_group__gene__gene_short_name }}
-    {{ form.tss_group__gene__gene_id }}
+    {{ form.gene__gene_short_name }}
+    {{ form.gene__gene_id }}
     {{ form.count__gte }}
 {% endblock %}
 
 {% block track_thead %}
-    <th>TSS group id</th>
     <th>Gene short name</th>
     <th>Gene id</th>
     <th>Sample</th>
-    <th>Count</th>
+    {% sort_by 'count' 'Count' %}
     <th>Variance</th>
     <th>Uncertainty</th>
     <th>Dispersion</th>

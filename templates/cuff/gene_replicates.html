@@ -1,4 +1,5 @@
 {% extends 'cuff/track_base.html' %}
+{% load cuff_tags %}
 {% block filters %}
     {{ form.sample__pk }}
     {{ form.replicate }}
@@ -15,7 +16,7 @@
     <th>Raw frags</th>
     <th>Internal scaled frags</th>
     <th>External scaled frags</th>
-    <th>FPKM</th>
+    {% sort_by 'fpkm' 'FPKM' %}
     <th>Status</th>
 {% endblock %}
 

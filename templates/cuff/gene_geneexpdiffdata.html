@@ -1,4 +1,5 @@
 {% extends 'cuff/track_base.html' %}
+{% load cuff_tags %}
 {% block title %}{{ block.super }} - gene diff{% endblock %}
 {% block filters %}
     {{ form.gene__gene_short_name }}
@@ -8,16 +9,17 @@
     {{ form.significant }}
 {% endblock %}
 
+
 {% block track_thead %}
     <th>Short name</th>
     <th>Gene id</th>
     <th>Value 1</th>
     <th>Value 2</th>
-    <th>Log<sub>2</sub> fold change</th>
+    {% sort_by 'log2_fold_change' 'Log<sub>2</sub> fold change' %}
     <th>Status</th>
     <th>Test stat</th>
-    <th><a class="btn btn-small btn-block" href="?o=p_value">p value <i class="icon-chevron-up"></i></a></th>
-    <th>q value</th>
+    {% sort_by 'p_value' 'p value' %}
+    {% sort_by 'q_value' 'q value' %}
     <th>Significant</th>
 {% endblock %}
 

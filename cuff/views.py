@@ -32,6 +32,7 @@ class HomeView(ListView):
         context['samples'] = Sample.objects.values_list('sample_name', flat=True)
         return context
 
+
 class FilteredTrackView(ListView, BaseFormView):
     
     def __init__(self, **kwargs):
@@ -44,7 +45,7 @@ class FilteredTrackView(ListView, BaseFormView):
         params = request.GET.copy()
         params.pop('page', None)
         params.pop('_filter', None)
-        self.ordering = params.pop('o', None) or self.ordering
+        self.ordering = params.pop('o', [])
         opts = self.model._meta
         filters = {}
         for k,v in params.items():
@@ -60,17 +61,14 @@ class FilteredTrackView(ListView, BaseFormView):
                 filters.update({smart_str('%s__icontains' % k): v,})
         return filters
 
-
     def get_queryset(self):
         qs = super(FilteredTrackView, self).get_queryset()
         return qs.filter(**self.filters).order_by(*self.ordering)
     
     def get_context_data(self,  **kwargs):
-        context = {
-            'form': self.get_form(self.form_class),
-            }
-        context.update(kwargs)
-        return super(FilteredTrackView, self).get_context_data(**context)
+        context = super(FilteredTrackView, self).get_context_data(**kwargs)
+        context.update({'form': self.get_form(self.form_class),})
+        return context
         
     def get(self, request, *args, **kwargs):
         # get takes care of initial display and ordering
@@ -80,4 +78,5 @@ class FilteredTrackView(ListView, BaseFormView):
         else:
             filters = self._get_filters(request)
             self.filters.update(filters)
+            #self.ordering = self._get_ordering(request)
         return super(FilteredTrackView, self).get(request, *args, **kwargs)

@@ -1,4 +1,5 @@
 {% extends 'cuff/track_base.html' %}
+{% load cuff_tags %}
 {% block filters %}
     {{ form.sample__pk }}
     {{ form.gene__gene_short_name }}
@@ -10,7 +11,7 @@
     <th>Gene short name</th>
     <th>Gene id</th>
     <th>Sample</th>
-    <th>FPKM</th>
+    {% sort_by 'fpkm' 'FPKM' %}
     <th>Conf Hi</th>
     <th>Conf Lo</th>
     <th>Status</th>

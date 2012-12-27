@@ -1,4 +1,5 @@
 {% extends 'cuff/track_base.html' %}
+{% load cuff_tags %}
 {% block title %}{{ block.super }} - promoters{% endblock %}
 {% block filters %}
     {{ form.gene__gene_short_name }}
@@ -13,11 +14,11 @@
     <th>Gene id</th>
     <th>Value 1</th>
     <th>Value 2</th>
-    <th>Sqrt(JS)</th>
-    <th>Staus</th>
+    {% sort_by 'js_dist' 'Sqrt(JS)' %}
+    <th>Status</th>
     <th>Test stat</th>
-    <th>p value</th>
-    <th>q value</th>
+    {% sort_by 'p_value' 'p value' %}
+    {% sort_by 'q_value' 'q value' %}
     <th>Significant</th>
 {% endblock %}
 
