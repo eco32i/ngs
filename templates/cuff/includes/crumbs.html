@@ -1,5 +1,5 @@
 <ul class="breadcrumb">
     {% for crumb in crumbs %}
-        <li>{{ crumb }}<span class="divider">/</span></li>
+        <li>{{ crumb }}{% if not forloop.last %}<span class="divider">/</span>{% endif %}</li>
     {% endfor %}
 </ul>
