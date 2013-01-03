@@ -24,3 +24,10 @@ def sort_by(context, field, text):
         'href': '?%s' % urlencode({'o': url_param,}),
         'link': text,
         }
+
+@register.inclusion_tag('cuff/includes/crumbs.html', takes_context=True)
+def crumbs(context):
+    request = context['request']
+    bits = request.path.strip('/').split('/')
+    return { 'crumbs': bits,}
+    

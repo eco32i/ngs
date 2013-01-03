@@ -1,5 +1,8 @@
 {% extends 'cuff/base.html' %}
-{% load pagination_tags %}
+{% load pagination_tags cuff_tags %}
+{% block breadcrumbs %}
+    {% crumbs %}
+{% endblock %}
 {% block content %}
     <div class="span12">
         <form class="form-inline" action="." method="GET">
