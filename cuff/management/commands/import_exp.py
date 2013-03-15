@@ -5,7 +5,7 @@ from django.db.models.loading import get_model
 from django.core.management.base import BaseCommand, CommandError
 
 from cuff.models import (
-    Gene, GeneCount, GeneData, GeneExpDiffData,
+    Gene, GeneCount, GeneData, GeneExpDiffData, Experiment,
     GeneReplicateData, GeneFeature, Isoform, IsoformCount, IsoformData,
     IsoformExpDiffData, IsoformFeature, IsoformReplicateData,
     TSS, TSSCount, TSSData, TSSExpDiffData, TSSFeature, TSSReplicateData,
@@ -52,6 +52,12 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--exclude', default='', dest='exclude',
             help='Track to exclude'),
+        make_option('--exp-title', default='', dest='title',
+            help='Experiment title. Inferred from the directory name if not given.'),
+        make_option('--exp-species', default='C.elegans', dest='species',
+            help='Species'),
+        make_option('--exp-lib-type', default='RNA-Seq', dest='lib',
+            help='Library type (e.g. mRNA-seq'),
         make_option('--gtf', default=None, dest='gtf',
             help='.gtf file with annotations'),
         make_option('--genome-build', default=None, dest='gbuild',
@@ -61,6 +67,13 @@ class Command(BaseCommand):
     
     def _get_reader(self, file, header=None):
         return csv.DictReader(file, delimiter='\t', fieldnames=header)
+    
+    def _get_track_fields(self, model):
+        '''
+        returns all fields except for `id` for a given model
+        '''
+        raw_fields = model._meta.get_all_field_names()
+        return filter(lambda x: x != 'id', raw_fields)
         
     def _get_track(self, model_track, data_track):
         '''
@@ -69,7 +82,8 @@ class Command(BaseCommand):
         '''
         track_model = get_model('cuff', model_track)
         if data_track == 'diffdata':
-            # these are 3 special cases
+            # these are 3 special cases where we have distribution
+            # level diff data
             if model_track == 'gene':
                 data_model = PromoterDiffData
             elif model_track == 'tss':
@@ -87,9 +101,17 @@ class Command(BaseCommand):
         return track_model, data_model, track_field
     
     def _track_melt(self, model, track_id_field, data):
+
+        def is_foreign_key(model, field):
+            field, m, direct, m2m = model._meta.get_field_by_name(field)
+            if field.rel and direct:
+                return True
+            else:
+                return False
+
         fields = model._meta.get_all_field_names()
-        kwargs = {}
-        # FIXME: Need k.lower()
+        kwargs = {'experiment': self.exp,}
+        # FIXME: (probably) Need k.lower()
         for k,v in data.items():
             # '-' denotes NA value
             # There are two special cases: gene_id and tss_id fields
@@ -97,26 +119,29 @@ class Command(BaseCommand):
             # ForeignKey otherwise
             if k == 'tracking_id':
                 track_key = '{track}_id'.format(track=track_id_field)
-                kwargs.update({track_key: v,})
+                kwargs.update({
+                    track_key: v,
+                    # This is an ugly way of getting composite pk.
+                    'track_pk': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),
+                    })
             elif k in fields and v != '-':
                 kwargs.update({k: v,})
             elif k == 'gene_id' and 'gene' in fields: # and not model is Gene:
-                kwargs.update({'gene_id': v,})
+                kwargs.update({'gene_id': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),})
             elif k == 'tss_id' and 'tss_group' in fields: # and not model is TSS:
-                kwargs.update({'tss_group_id': v,})
+                kwargs.update({'tss_group_id': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),})
         return model(**kwargs)
     
     def _data_melt(self, model, track_id_field, sample_names, data):
         '''
         Kinda sorta analogous to dataframe.melt function in R.
         '''
-        fields = model._meta.get_all_field_names()
+        fields = self._get_track_fields(model)
         track_key = '{track}_id'.format(track=track_id_field)
-        melts = [{'sample_id': name, track_key: data['tracking_id'],} 
+        melts = [{'sample_id': name, track_key: '{base_id}-exp-{exp_id}'.format(base_id=data['tracking_id'], exp_id=self.exp.pk), } 
             for name in sample_names]
         for k,v in data.items():
             sample_name = k.split('_')[0]
-            kwargs = {}
             for m in melts:
                 if sample_name == m['sample_id']:
                     kwargs = m
@@ -124,6 +149,8 @@ class Command(BaseCommand):
             for field in fields:
                 if k.lower().endswith(field) and v != '-':
                     kwargs.update({field: v,})
+        for m in melts:
+            m['sample_id'] += '-exp-{exp_pk}'.format(exp_pk=self.exp.pk)
         return [model(**kwargs) for kwargs in melts]
     
     def _process_fpkm(self, track, file):
@@ -131,7 +158,7 @@ class Command(BaseCommand):
         track_model, data_model, track_id = self._get_track(track, 'data')
         track_records = []
         data_records = []
-        sample_names = Sample.objects.values_list('sample_name', flat=True)
+        sample_names = Sample.objects.filter(experiment=self.exp).values_list('sample_name', flat=True)
         with open(file) as fpkm_file:
             reader = self._get_reader(fpkm_file)
             self.stdout.write('\t...\treshaping data...')
@@ -160,12 +187,13 @@ class Command(BaseCommand):
             reader = self._get_reader(diff_file)
             self.stdout.write('\t...\tparsing data...')
             for rec in reader:
-                kwargs = {track_key: rec['test_id'],}
+                kwargs = {track_key: '{base_id}-exp-{exp_id}'.format(base_id=rec['test_id'], exp_id=self.exp.pk),}
                 for k,v in rec.items():
                     if k in fields:
                         if k.startswith('sample'):
+                            # FIXME: Sample pk!
                             sample_key = '{sample}_id'.format(sample=k)
-                            kwargs.update({sample_key: v,})
+                            kwargs.update({sample_key: '{name}-exp-{exp_pk}'.format(name=v, exp_pk=self.exp.pk),})
                         elif k != track_id_field:
                             kwargs.update({k: v,})
                     elif k.startswith('sqrt'):
@@ -179,10 +207,11 @@ class Command(BaseCommand):
         return diff_count
     
     def _process_count(self, track, count):
+        # FIXME: Broken. This one misses uncertainty_var!
         track_model, count_model, track_id_field = self._get_track(track, 'count')
-        fields = count_model._meta.get_all_field_names()
+        fields = self._get_track_fields(count_model)
         track_key = '{track}_id'.format(track=track_id_field)
-        sample_names = Sample.objects.values_list('sample_name', flat=True)
+        sample_names = Sample.objects.filter(experiment=self.exp).values_list('sample_name', flat=True)
         imported = []
         with open(count) as count_file:
             reader = self._get_reader(count_file)
@@ -190,7 +219,7 @@ class Command(BaseCommand):
             for rec in reader:
                 # Set up list of kwargs for every sample
                 tracking_id = rec.pop('tracking_id')
-                melts = [{'sample_id': name, track_key: tracking_id,}
+                melts = [{'sample_id': name, track_key: '{base_id}-exp-{exp_id}'.format(base_id=tracking_id, exp_id=self.exp.pk),}
                         for name in sample_names]
                 for k,v in rec.items():
                     bits = k.split('_')
@@ -204,6 +233,8 @@ class Command(BaseCommand):
                         # underscore
                         if f in fields and not f in kwargs:
                             kwargs.update({f: v,})
+                for m in melts:
+                    m['sample_id'] += '-exp-{exp_pk}'.format(exp_pk=self.exp.pk)
                 imported.extend([count_model(**melt) for melt in melts])
         cnt_count = len(count_model._default_manager.bulk_create(imported))
         self.stdout.write('\t...\t {count} records processed'.format(count=cnt_count))
@@ -211,33 +242,35 @@ class Command(BaseCommand):
     
     def _process_replicate(self, track, replicate):
         track_model, rep_model, track_id_field = self._get_track(track, 'replicatedata')
-        fields = rep_model._meta.get_all_field_names()
+        fields = self._get_track_fields(rep_model)
         track_key = '{track}_id'.format(track=track_id_field)
         imported = []
         with open(replicate) as rep_file:
             reader = self._get_reader(rep_file)
             for rec in reader:
-                kwargs = {track_key: rec['tracking_id'],}
+                kwargs = {track_key: '{base_id}-exp-{exp_id}'.format(base_id=rec['tracking_id'], exp_id=self.exp.pk),}
                 for k,v in rec.items():
                     f = k.lower()
                     if f in fields and v != '-':
                         kwargs.update({f: v,})
                     elif f == 'condition':
                         sample = v
-                        kwargs.update({'sample_id': v,})
-                kwargs.update({'rep_name_id': '{sample}_{rep}'.format(
+                        kwargs.update({'sample_id': '{sample}-exp-{exp_pk}'.format(sample=sample, exp_pk=self.exp.pk),})
+                kwargs.update({'rep_name_id': '{sample}_{rep}-exp-{exp_pk}'.format(
                     sample=sample,
-                    rep=rec['replicate']),}
+                    rep=rec['replicate'],
+                    exp_pk=self.exp.pk),}
                     )
                 imported.append(rep_model(**kwargs))
         rep_count = len(rep_model._default_manager.bulk_create(imported))
         self.stdout.write('\t...\t {count} records processed'.format(count=rep_count))
         return rep_count
     
-    def set_options(self, **options):
+    def set_options(self, dir, **options):
         '''
         Set instance variables based on options dict
         '''
+        from datetime import datetime as dt
         gtf_file = options['gtf']
         if gtf_file and os.path.exists(gtf_file):
             self.gtf = gtf_file
@@ -245,6 +278,16 @@ class Command(BaseCommand):
             self.gtf = None
         self.genome_build = options['gbuild']
         self.exclude = options['exclude'].split()
+        info = os.stat(dir)
+        created = dt.fromtimestamp(info.st_mtime)
+        self.exp = Experiment.objects.create(
+            title=options['title'] or os.path.basename(dir).replace('_', ' '),
+            species=options['species'],
+            library=options['lib'],
+            analysis_date=created,
+            run_date=created,
+            )
+        
     
     def import_runinfo(self, file):
         '''
@@ -260,9 +303,17 @@ class Command(BaseCommand):
         with open(file) as runinfo_file:
             reader = self._get_reader(runinfo_file)
             for rec in reader:
-                imported.append(RunInfo(key=rec['param'], value=rec['value']))
+                imported.append(RunInfo(
+                    experiment=self.exp,
+                    key=rec['param'], 
+                    value=rec['value']
+                ))
         if self.genome_build:
-            imported.append(RunInfo(key='genome', value=self.genome_build))
+            imported.append(RunInfo(
+                experiment=self.exp,
+                key='genome',
+                value=self.genome_build
+                ))
         return RunInfo.objects.bulk_create(imported)
         
     def import_reptable(self, file):
@@ -276,12 +327,17 @@ class Command(BaseCommand):
             reader = self._get_reader(rep_file)
             for rec in reader:
                 sample, created = Sample.objects.get_or_create(
-                    sample_name=rec['condition']
+                    experiment=self.exp,
+                    sample_name=rec['condition'],
+                    sample_pk='{sample}-exp-{exp}'.format(
+                        sample=rec['condition'],
+                        exp=self.exp.pk)
                     )
                 kwargs = {
                     'sample': sample,
                     'file_name': rec['file'],
                     'replicate': int(rec['replicate_num']),
+                    'rep_pk': '%s_%s-%s' % (rec['condition'], rec['replicate_num'], sample.pk),
                     'rep_name': '%s_%s' % (rec['condition'], rec['replicate_num'])
                     }
                 for k,v in rec.items():
@@ -355,7 +411,10 @@ class Command(BaseCommand):
         dir = args[0]
         if not os.path.exists(dir):
             raise CommandError('Directory %s does not exist.' % dir)
-        self.set_options(**options)
+        self.set_options(dir, **options)
+        self.stdout.write('Importing experiment:\t{title}'.format(title=self.exp.title))
+        self.stdout.write('\t... Species:\t{species}'.format(species=self.exp.species))
+        self.stdout.write('\t... Library:\t{lib}'.format(lib=self.exp.library))
         self.stdout.write('Reading Runinfo file ...')
         self.import_runinfo(os.path.join(dir, RUNINFO_FILE))
         self.stdout.write('Importing replicates and populating Samples table ...')

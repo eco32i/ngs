@@ -5,6 +5,20 @@ from django.utils.http import urlencode
 
 register = template.Library()
 
+@register.simple_tag(takes_context=True)
+def render_track_header(context, fields):
+    th_tmpl = '<th>{field}</th>'
+    return ''.join([th_tmpl.format(field=f.replace('_',' ')) for f in fields])
+
+
+@register.simple_tag(takes_context=True)
+def render_track_obj(context, obj):
+    fields = obj._meta.list_display
+    td_tmpl = '<td>{field}</td>'
+    row = ''.join([td_tmpl.format(field=getattr(obj,f)) for f in fields])
+    return '<tr>%s</tr>' % row
+
+
 @register.inclusion_tag('cuff/includes/th_sort.html', takes_context=True)
 def sort_by(context, field, text):
     request = context['request']
@@ -24,6 +38,7 @@ def sort_by(context, field, text):
         'href': '?%s' % urlencode({'o': url_param,}),
         'link': text,
         }
+
 
 @register.inclusion_tag('cuff/includes/crumbs.html', takes_context=True)
 def crumbs(context):

@@ -11,6 +11,9 @@
 
     <body class="{% block bodyclass %}{% endblock %}">
         <!-- Navbar -->
+        {% comment %}
+        This should be replaced by a templatetag based
+        context aware navigation
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container-fluid">
@@ -91,6 +94,7 @@
             </div>
         </div>
         <!-- End Navbar -->
+        {% endcomment %}
         {% block breadcrumbs %}{% endblock %}
         <!-- Container -->
         <div class="container">

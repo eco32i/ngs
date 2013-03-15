@@ -1,0 +1,3 @@
+{% for col_name in col_names %}
+    {% if col_name in sort_by %}{% sort_by name name %}{% else %}<th>{{ name }}</th>{% endif %}
+{% endfor %}

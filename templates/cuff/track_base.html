@@ -16,7 +16,7 @@
     <div class="span12">
         <table class="table table-bordered">
             <thead>
-                <tr>{% block track_thead %}{% endblock %}</tr>
+                <tr>{% block track_head %}{% endblock %}</tr>
             </thead>
             {% autopaginate object_list 100 %}
             {% block track_tbody %}{% endblock %}

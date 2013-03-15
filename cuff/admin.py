@@ -8,10 +8,18 @@ from cuff.models import (
     TSS, TSSCount, TSSData, TSSExpDiffData, TSSFeature, TSSReplicateData,
     CDS, CDSData, CDSCount,CDSExpDiffData, CDSFeature, CDSReplicateData,
     CDSDiffData, PromoterDiffData, SplicingDiffData, Sample, Replicate, 
-    RunInfo
+    RunInfo, Experiment
     )
     
 admin.autodiscover()
+
+class ExperimentAdmin(admin.ModelAdmin):
+    list_display = ('run_date', 'analysis_date', 'title', 'species',
+        'library', 'description')
+    date_hierarchy = 'run_date'
+    list_filter = ('species', 'library',)
+
+admin.site.register(Experiment, ExperimentAdmin)
 
 class RunInfoAdmin(admin.ModelAdmin):
     model = RunInfo
