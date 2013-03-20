@@ -1,40 +1,14 @@
 from django.db import models
 from django.db.models.loading import get_model
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.views.generic import View, FormView
-from django.views.generic.list import ListView, MultipleObjectMixin
-from django.views.generic.edit import BaseFormView
+from django.views.generic.list import ListView
 from django.utils.encoding import smart_str
 from django.utils.text import capfirst
 
 from cuff.models import Experiment
-#~ from cuff.models import (RunInfo, Replicate, Sample, Gene, Isoform,
-    #~ TSS, CDS, PromoterDiffData, SplicingDiffData, CDSDiffData)
-#~ from cuff.forms import GeneFilterForm
 
 ALLOWED_LOOKUPS = ('iexact', 'icontains', 'in', 'gt', 'gte', 'lt',
     'lte', 'istratswith', 'iendswith', 'range', 'isnull', 'iregex')
-
-#~ class HomeView(ListView):
-    #~ model = RunInfo
-    #~ template_name = 'cuff/home.html'
-    #~ 
-    #~ def get_context_data(self, **kwargs):
-        #~ context = super(HomeView, self).get_context_data(**kwargs)
-        #~ stat_dict = {
-            #~ 'samples': Sample.objects.count(),
-            #~ 'genes': Gene.objects.count(),
-            #~ 'isoforms': Isoform.objects.count(),
-            #~ 'TSS': TSS.objects.count(),
-            #~ 'CDS': CDS.objects.count(),
-            #~ 'promoters': PromoterDiffData.objects.count(),
-            #~ 'splicing': SplicingDiffData.objects.count(),
-            #~ 'relCDS': CDSDiffData.objects.count(),
-            #~ }
-        #~ context['stat'] = stat_dict
-        #~ context['samples'] = Sample.objects.values_list('sample_name', flat=True)
-        #~ return context
 
 
 class TrackView(ListView):
@@ -94,7 +68,7 @@ class TrackView(ListView):
         track_base = self.kwargs['track']
         track_data = self.kwargs.get('data', '')
         if track_base in ['cds', 'tss']:
-            # We need proper capitalization to get the form class later
+            # This is case-sensitive to get the form class later
             track_base = track_base.upper()
         if track_base in ['promoter', 'splicing', 'relcds']:
             track_model = '{base}diffdata'.format(base=track_base)

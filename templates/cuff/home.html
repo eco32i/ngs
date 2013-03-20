@@ -1,44 +1,67 @@
 {% extends 'cuff/base.html' %}
+{% load cuff_tags %}
 {% block content %}
-<div class="hero-unit">
-    <h1>cuffdiff results summary</h1>
-    <p>Samples: {{ samples|join:", " }} </p>
-    <hr class="soften"/>
-    <div class="row-fluid">
-        <div class="span3">
-            <h2><a href="{% url 'cuff_gene_view' %}">Genes</a></h2>
-            <p>{{ stat.genes }} genes</p>
+{% for exp in object_list %}
+    <div class="hero-unit">
+        <h1>{{ exp.title }}</h1>
+        <div class="row-fluid">
+            <div class="span6">
+                <dl class="dl-horizontal">
+                    <dt>Run on:</dt><dd>{{ exp.run_date|date:"Y M d" }}</dd>
+                    <dt>Analyzed on:</dt><dd>{{ exp.analysis_date|date:"Y M d" }}</dd>
+                    <dt>Library:</dt><dd>{{ exp.library }}</dd>
+                    <dt>Species:</dt><dd>{{ exp.species }}</dd>
+                </dl>
+            </div>
+            <div class="span6">
+                <dl class="dl-horizontal">
+                    {% for sample in exp.sample_set.all %}
+                        <dt>{{ sample }}</dt><dd>{{ sample.replicate_set.count }} replicates</dd>
+                    {% endfor %}
+                </dl>
+            </div>
         </div>
-        <div class="span3">
-            <h2><a href="{% url 'cuff_isoform_view' %}">Isoforms</a></h2>
-            <p>{{ stat.isoforms }} isoforms</p>
+        {% if exp.description %}<p>{{ exp.description }} </p>{% endif %}
+        
+        
+        <hr class="soften"/>
+        <div class="row-fluid">
+            <div class="span3">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='gene' %}">Genes</a></h2>
+                <p>{% stat 'gene' exp %} genes</p>
+            </div>
+            <div class="span3">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='isoform' %}">Isoforms</a></h2>
+                <p>{% stat 'isoform' exp %} isoforms</p>
+            </div>
+            <div class="span3">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='tss' %}">TSS</a></h2>
+                <p>{% stat 'tss' exp %} TSS groups</p>
+            </div>
+            <div class="span3">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='cds' %}">CDS</a></h2>
+                <p>{% stat 'cds' exp %} CDSs</p>
+            </div>
         </div>
-        <div class="span3">
-            <h2><a href="{% url 'cuff_tss_view' %}">TSS</a></h2>
-            <p>{{ stat.TSS }} TSS groups</p>
+        <hr class="soften"/>
+        <div class="row-fluid">
+            <div class="span4">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='promoter' %}">Promoters</a></h2>
+                <p>{% stat 'promoterdiffdata' exp %} promoters</p>
+            </div>
+            <div class="span4">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='splicing' %}">Splicing</a></h2>
+                <p>{% stat 'splicingdiffdata' exp %} splice variants</p>
+            </div>
+            <div class="span4">
+                <h2><a href="{% url 'track_base_view' exp_pk=exp.pk track='relcds' %}">Rel CDS</a></h2>
+                <p>{% stat 'cdsdiffdata' exp %} rel CDS</p>
+            </div>
         </div>
-        <div class="span3">
-            <h2><a href="{% url 'cuff_cds_view' %}">CDS</a></h2>
-            <p>{{ stat.CDS }} CDSs</p>
-        </div>
+        <hr class="soften"/>
+        
     </div>
-    <hr class="soften"/>
-    <div class="row-fluid">
-        <div class="span4">
-            <h2><a href="{% url 'cuff_promoters_view' %}">Promoters</a></h2>
-            <p>{{ stat.promoters }} promoters</p>
-        </div>
-        <div class="span4">
-            <h2><a href="{% url 'cuff_splicing_view' %}">Splicing</a></h2>
-            <p>{{ stat.splicing }} splice variants</p>
-        </div>
-        <div class="span4">
-            <h2><a href="{% url 'cuff_relcds_view' %}">Rel CDS</a></h2>
-            <p>{{ stat.relCDS }} rel CDS</p>
-        </div>
-    </div>
-    <hr class="soften"/>
-</div>
+{% endfor %}
 {% endblock %}
 {% block footer %}
     <dl class="dl-horizontal">

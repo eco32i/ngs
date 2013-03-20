@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, url
+from django.views.generic.list import ListView
 
+from cuff.models import Experiment
 from cuff import views
 
 #
@@ -12,7 +14,11 @@ from cuff import views
 #
 
 urlpatterns = patterns('',
-    # url(r'^$', views.HomeView.as_view(), name='cuff_home_view'),
+    # Home page - list of experiments
+    url(r'^$', ListView.as_view(
+        model=Experiment,
+        template_name='cuff/home.html'),
+         name='cuff_home_view'),
     
     # Track urls
     url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', views.TrackView.as_view(),

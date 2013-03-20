@@ -1,5 +1,5 @@
 from django import template
-from django.template.context import Context
+from django.db.models.loading import get_model
 from django.utils.http import urlencode
 
 
@@ -17,6 +17,12 @@ def render_track_obj(context, obj):
     td_tmpl = '<td>{field}</td>'
     row = ''.join([td_tmpl.format(field=getattr(obj,f)) for f in fields])
     return '<tr>%s</tr>' % row
+
+
+@register.simple_tag
+def stat(track, exp):
+    track_model = get_model('cuff', track)
+    return track_model._default_manager.for_exp(exp).count()
 
 
 @register.inclusion_tag('cuff/includes/th_sort.html', takes_context=True)

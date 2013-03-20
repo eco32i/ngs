@@ -170,8 +170,10 @@ class Command(BaseCommand):
         track_count = len(track_model._default_manager.bulk_create(track_records))
         data_count = len(data_model._default_manager.bulk_create(data_records))
         # FIXME: String formatting
-        self.stdout.write('\t...\t %d %s and %d %sdata records ...' % 
-                (track_count, track, data_count, track))
+        self.stdout.write('\t...\t {tcount} {track} and {dcount} {track}data records ...'.format( 
+                tcount=track_count,
+                track=track,
+                dcount=data_count))
         return track_count, data_count
     
     def _process_diff(self, track, file, diff='expdiffdata'):
@@ -254,10 +256,13 @@ class Command(BaseCommand):
                     if f in fields and v != '-':
                         kwargs.update({f: v,})
                     elif f == 'condition':
-                        sample = v
-                        kwargs.update({'sample_id': '{sample}-exp-{exp_pk}'.format(sample=sample, exp_pk=self.exp.pk),})
+                        # sample = v
+                        kwargs.update({'sample_id': '{sample}-exp-{exp_pk}'.format(
+                            sample=v,
+                            exp_pk=self.exp.pk),}
+                            )
                 kwargs.update({'rep_name_id': '{sample}_{rep}-exp-{exp_pk}'.format(
-                    sample=sample,
+                    sample=rec['condition'],
                     rep=rec['replicate'],
                     exp_pk=self.exp.pk),}
                     )
@@ -337,7 +342,7 @@ class Command(BaseCommand):
                     'sample': sample,
                     'file_name': rec['file'],
                     'replicate': int(rec['replicate_num']),
-                    'rep_pk': '%s_%s-%s' % (rec['condition'], rec['replicate_num'], sample.pk),
+                    'rep_pk': '%s_%s-exp-%s' % (rec['condition'], rec['replicate_num'], self.exp.pk),
                     'rep_name': '%s_%s' % (rec['condition'], rec['replicate_num'])
                     }
                 for k,v in rec.items():
