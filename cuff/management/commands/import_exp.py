@@ -35,7 +35,9 @@ CDSEXP_DIFF_FILE = 'cds_exp.diff'
 CDS_DIFF_FILE = 'cds.diff'
 CDS_COUNT_FILE = 'cds.count_tracking'
 CDS_REPLICATE_FILE = 'cds.read_group_tracking'
-    
+
+# This whole mess should be refactored using pandas or such...
+
 class Command(BaseCommand):
     '''
     Imports the files produced by cuff_diff into the database.

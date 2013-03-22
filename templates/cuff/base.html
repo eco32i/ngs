@@ -10,98 +10,13 @@
     </head>
 
     <body class="{% block bodyclass %}{% endblock %}">
-        <!-- Navbar -->
-        {% comment %}
-        This should be replaced by a templatetag based
-        context aware navigation
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                    <a class="brand" href="{% url 'cuff_home_view' %}">cuffbase</a>
-                    <ul class="nav">
-                        <li>
-                            <a href="{% url 'cuff_home_view' %}">Summary</a>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Genes
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'cuff_gene_view' %}">Genes</a></li>
-                                <li><a href="{% url 'cuff_genedata_view' %}">Data</a></li>
-                                <li><a href="{% url 'cuff_genecounts_view' %}">Count</a></li>
-                                <li><a href="{% url 'cuff_genereplicates_view' %}">Replicates</a></li>
-                                <li><a href="{% url 'cuff_geneexpdiffdata_view' %}">Diff</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                TSS
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'cuff_tss_view' %}">TSS groups</a></li>
-                                <li><a href="{% url 'cuff_tssdata_view' %}">Data</a></li>
-                                <li><a href="{% url 'cuff_tsscounts_view' %}">Count</a></li>
-                                <li><a href="{% url 'cuff_tssreplicates_view' %}">Replicates</a></li>
-                                <li><a href="{% url 'cuff_tssexpdiffdata_view' %}">Diff</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Isoforms
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'cuff_isoform_view' %}">Isoforms</a></li>
-                                <li><a href="{% url 'cuff_isoformdata_view' %}">Data</a></li>
-                                <li><a href="{% url 'cuff_isoformcounts_view' %}">Count</a></li>
-                                <li><a href="{% url 'cuff_isoformreplicates_view' %}">Replicates</a></li>
-                                <li><a href="{% url 'cuff_isoformexpdiffdata_view' %}">Diff</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                CDS
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'cuff_cds_view' %}">CDS</a></li>
-                                <li><a href="{% url 'cuff_cdsdata_view' %}">Data</a></li>
-                                <li><a href="{% url 'cuff_cdscounts_view' %}">Count</a></li>
-                                <li><a href="{% url 'cuff_cdsreplicates_view' %}">Replicates</a></li>
-                                <li><a href="{% url 'cuff_cdsexpdiffdata_view' %}">Diff</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Distributions
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'cuff_promoters_view' %}">Promoters</a></li>
-                                <li><a href="{% url 'cuff_splicing_view' %}">Splicing</a></li>
-                                <li><a href="{% url 'cuff_relcds_view' %}">Rel CDS</a></li>
-                            </ul>
-                        </li>
-                        <li class="divider-vertical"></li>
-                        <li>
-                            <a href="{% url 'admin:index' %}">Admin</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!-- End Navbar -->
-        {% endcomment %}
+        {% block navigation %}{% endblock %}
         {% block breadcrumbs %}{% endblock %}
         <!-- Container -->
         <div class="container">
             <!-- Content -->
             {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
             {% block content %}{% endblock %}
-            
             <!-- END Content -->
         </div>
         <!-- END Container -->

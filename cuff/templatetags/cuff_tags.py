@@ -1,5 +1,6 @@
 from django import template
 from django.db.models.loading import get_model
+from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 
 
@@ -21,6 +22,9 @@ def render_track_obj(context, obj):
 
 @register.simple_tag
 def stat(track, exp):
+    # FIXME: This is silly. Too many db hits.
+    # Needs to be replaced with a model populated once during the
+    # initial import
     track_model = get_model('cuff', track)
     return track_model._default_manager.for_exp(exp).count()
 
@@ -44,6 +48,25 @@ def sort_by(context, field, text):
         'href': '?%s' % urlencode({'o': url_param,}),
         'link': text,
         }
+
+@register.inclusion_tag('cuff/includes/track_menu.html', takes_context=True)
+def track_menu(context, track):
+    exp = context['exp']
+    track_data = ('data', 'count', 'replicate', 'diff',)
+    dist_data = ('promoter', 'splicing', 'relcds',)
+    if track == 'dist':
+        li_data = [{
+            'url': reverse('track_base_view', kwargs={'track': data, 'exp_pk': exp.pk,}),
+            'link': data,} for data in dist_data]
+    else:
+        li_data = list({'url': reverse('track_base_view', kwargs={'track': track, 'exp_pk': exp.pk, }),
+                'link': track,})
+        for data in track_data:
+            li_data.append({
+                'url': reverse('track_data_view', kwargs={'track': track, 'exp_pk': exp.pk, 'data': data,}),
+                'link': '{track} {data}'.format(track=track, data=data),
+                })
+    return {'menu_items': li_data,}
 
 
 @register.inclusion_tag('cuff/includes/crumbs.html', takes_context=True)

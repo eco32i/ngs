@@ -1,5 +1,8 @@
 {% extends 'cuff/base.html' %}
 {% load cuff_tags %}
+{% block navigation %}
+    {% include 'cuff/includes/navbar_home.html' %}
+{% endblock %}
 {% block content %}
 {% for exp in object_list %}
     <div class="hero-unit">
@@ -65,10 +68,9 @@
 {% endblock %}
 {% block footer %}
     <dl class="dl-horizontal">
-        {% for info in object_list %}
-            <dt>{{ info.key }}</dt>
-            <dd><code>{{ info.value }}</code></dd>
-        {% endfor %}
+        <dt>&copy; 2012-2013</dt><dd>Nudler Lab</dd>
+        <dt>powered by</dt><dd>django</dd>
+        <dt>inspired by</dt><dd>tophat/cufflinks/cummeRbund</dd>
     </dl>
 {% endblock %}
 

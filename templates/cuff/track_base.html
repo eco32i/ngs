@@ -1,5 +1,8 @@
 {% extends 'cuff/base.html' %}
 {% load pagination_tags cuff_tags %}
+{% block navigation %}
+    {% include 'cuff/includes/navbar_track.html' %}
+{% endblock %}
 {% block breadcrumbs %}
     {% crumbs %}
 {% endblock %}

@@ -60,6 +60,7 @@ class TrackView(ListView):
             'model': self.model,
             'fields': opts.list_display,
             'form': self.get_form(),
+            'exp': self.exp,
             })
         return context
 
