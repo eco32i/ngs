@@ -4,16 +4,9 @@ from optparse import make_option
 from django.db.models.loading import get_model
 from django.core.management.base import BaseCommand, CommandError
 
-from cuff.models import (
-    Gene, GeneCount, GeneData, GeneExpDiffData, Experiment,
-    GeneReplicateData, GeneFeature, Isoform, IsoformCount, IsoformData,
-    IsoformExpDiffData, IsoformFeature, IsoformReplicateData,
-    TSS, TSSCount, TSSData, TSSExpDiffData, TSSFeature, TSSReplicateData,
-    CDS, CDSCount, CDSCount,CDSExpDiffData, CDSFeature, CDSReplicateData,
-    CDSDiffData, PromoterDiffData, SplicingDiffData, Sample, Replicate, 
-    RunInfo, ExpStat
-    )
+from cuff.models import Experiment, Sample, Replicate, RunInfo, ExpStat
 
+# The filenames from cuffdiff output
 RUNINFO_FILE = 'run.info'
 REPLICATES_FILE = 'read_groups.info'
 GENE_FPKM_FILE = 'genes.fpkm_tracking'
@@ -456,6 +449,8 @@ class Command(BaseCommand):
                 count=os.path.join(dir, CDS_COUNT_FILE),
                 replicate=os.path.join(dir, CDS_REPLICATE_FILE)
                 )
+        # Now dump all the stats into a separate table for an easy
+        # access later
         ExpStat.objects.create(
             experiment=self.exp,
             gene_count=gene_num,

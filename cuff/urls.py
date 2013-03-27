@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     url(r'^$', ListView.as_view(
         model=ExpStat,
         template_name='cuff/home.html'),
-         name='cuff_home_view'),
+        name='cuff_home_view'),
     
     # Track urls
     url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', views.TrackView.as_view(),

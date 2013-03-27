@@ -20,15 +20,6 @@ def render_track_obj(context, obj):
     return '<tr>%s</tr>' % row
 
 
-@register.simple_tag
-def stat(track, exp):
-    # FIXME: This is silly. Too many db hits.
-    # Needs to be replaced with a model populated once during the
-    # initial import
-    track_model = get_model('cuff', track)
-    return track_model._default_manager.for_exp(exp).count()
-
-
 @register.inclusion_tag('cuff/includes/th_sort.html', takes_context=True)
 def sort_by(context, field, text):
     request = context['request']
