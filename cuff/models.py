@@ -1,6 +1,3 @@
-from django.db import models
-from django.db.models import options
-
 '''
 cummerbund schema:
 SQL models for Tophat/Cufflinks pipeline results access.
@@ -48,6 +45,9 @@ Data file parsing order:
         -- CDSReplicateData
         
 '''
+from django.db import models
+from django.db.models import options
+
 # Allow models to define fields to be displayed in the list view
 options.DEFAULT_NAMES += ('list_display',)
 
@@ -653,3 +653,31 @@ class SplicingDiffData(DiffData, TSSTrackMixin):
         ordering = ['tss_group',]
         list_display = ('tss_group',) + TRACK_DIFF_FIELDS
         verbose_name_plural = 'Splicing data'
+
+#
+# Experiment stats
+#
+
+class ExpStat(models.Model):
+    '''
+    We denormalize and store the number of objects in each track for an
+    experiment.
+    This is done once during the initial import. Then the HomeView
+    won't have to make a lot of huge `count` queries.
+    '''
+    experiment = models.ForeignKey(Experiment)
+    gene_count = models.IntegerField(default=0)
+    tss_count = models.IntegerField(default=0)
+    isoform_count = models.IntegerField(default=0)
+    cds_count = models.IntegerField(default=0)
+    promoter_count = models.IntegerField(default=0)
+    splicing_count = models.IntegerField(default=0)
+    relcds_count = models.IntegerField(default=0)
+    
+    def __unicode__(self):
+        return 'Summary for:\t{exp}'.format(exp=self.experiment)
+
+    class Meta:
+        ordering = ['experiment',]
+        verbose_name = 'Experiment details'
+        verbose_name_plural = 'Experiment details'

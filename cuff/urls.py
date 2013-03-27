@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from django.views.generic.list import ListView
 
-from cuff.models import Experiment
+from cuff.models import ExpStat
 from cuff import views
 
 #
@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     # This view needs refactoring - it hits db too much.
     # Probably need to move run stats to its own table.
     url(r'^$', ListView.as_view(
-        model=Experiment,
+        model=ExpStat,
         template_name='cuff/home.html'),
          name='cuff_home_view'),
     

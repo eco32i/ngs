@@ -11,7 +11,7 @@ from cuff.models import (
     TSS, TSSCount, TSSData, TSSExpDiffData, TSSFeature, TSSReplicateData,
     CDS, CDSCount, CDSCount,CDSExpDiffData, CDSFeature, CDSReplicateData,
     CDSDiffData, PromoterDiffData, SplicingDiffData, Sample, Replicate, 
-    RunInfo
+    RunInfo, ExpStat
     )
 
 RUNINFO_FILE = 'run.info'
@@ -171,7 +171,6 @@ class Command(BaseCommand):
         self.stdout.write('\t...\twriting tables...')
         track_count = len(track_model._default_manager.bulk_create(track_records))
         data_count = len(data_model._default_manager.bulk_create(data_records))
-        # FIXME: String formatting
         self.stdout.write('\t...\t {tcount} {track} and {dcount} {track}data records ...'.format( 
                 tcount=track_count,
                 track=track,
@@ -366,7 +365,7 @@ class Command(BaseCommand):
         '''
         if os.path.exists(fpkm):
             self.stdout.write('\t... processing .fpkm file ...')
-            self._process_fpkm(track, fpkm)
+            track_count = self._process_fpkm(track, fpkm)[0]
         else:
             raise CommandError('%s .fpkm file is missing!' % track)
         if os.path.exists(diff):
@@ -428,7 +427,7 @@ class Command(BaseCommand):
         self.import_reptable(os.path.join(dir, REPLICATES_FILE))
         if not 'gene' in self.exclude:
             self.stdout.write('Importing genes ...')
-            self.import_track('gene', os.path.join(dir, GENE_FPKM_FILE),
+            gene_num, promoter_num = self.import_track('gene', os.path.join(dir, GENE_FPKM_FILE),
                 os.path.join(dir, GENEEXP_DIFF_FILE),
                 promoter=os.path.join(dir, PROMOTER_FILE),
                 count=os.path.join(dir, GENE_COUNT_FILE),
@@ -436,7 +435,7 @@ class Command(BaseCommand):
                 )
         if not 'TSS' in self.exclude:
             self.stdout.write('Importing TSS groups ...')
-            self.import_track('tss', os.path.join(dir, TSS_FPKM_FILE),
+            tss_num, splicing_num = self.import_track('tss', os.path.join(dir, TSS_FPKM_FILE),
                 os.path.join(dir, TSSEXP_DIFF_FILE),
                 splicing=os.path.join(dir, SPLICING_FILE),
                 count=os.path.join(dir, TSS_COUNT_FILE),
@@ -444,18 +443,29 @@ class Command(BaseCommand):
                 )
         if not 'isoform' in self.exclude:
             self.stdout.write('Importing isoforms ...')
-            self.import_track('isoform', os.path.join(dir, ISOFORM_FPKM_FILE),
+            isoform_num = self.import_track('isoform', os.path.join(dir, ISOFORM_FPKM_FILE),
                 os.path.join(dir, ISOFORMEXP_DIFF_FILE),
                 count=os.path.join(dir, ISOFORM_COUNT_FILE),
                 replicate=os.path.join(dir, ISOFORM_REPLICATE_FILE)
-                )
+                )[0] # Because there is no dist level data here
         if not 'CDS' in self.exclude:
             self.stdout.write('Importing CDS ...')
-            self.import_track('cds', os.path.join(dir, CDS_FPKM_FILE),
+            cds_num, relcds_num = self.import_track('cds', os.path.join(dir, CDS_FPKM_FILE),
                 os.path.join(dir, CDSEXP_DIFF_FILE),
+                cds_diff=os.path.join(dir, CDS_DIFF_FILE),
                 count=os.path.join(dir, CDS_COUNT_FILE),
                 replicate=os.path.join(dir, CDS_REPLICATE_FILE)
                 )
+        ExpStat.objects.create(
+            experiment=self.exp,
+            gene_count=gene_num,
+            promoter_count=promoter_num,
+            tss_count=tss_num,
+            splicing_count=splicing_num,
+            isoform_count=isoform_num,
+            cds_count=cds_num,
+            relcds_count=relcds_num
+        )
         if self.gtf:
             self.stdout.write('Importing .GTF file ...')
             self.import_gtf(self.gtf)
