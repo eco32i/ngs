@@ -15,8 +15,6 @@ from cuff import views
 
 urlpatterns = patterns('',
     # Home page - list of experiments
-    # This view needs refactoring - it hits db too much.
-    # Probably need to move run stats to its own table.
     url(r'^$', ListView.as_view(
         model=ExpStat,
         template_name='cuff/home.html'),

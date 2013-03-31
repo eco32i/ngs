@@ -134,7 +134,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'pagination',
     'cuff',
-    # 'gunicorn',
+    'gunicorn',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

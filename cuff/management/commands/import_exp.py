@@ -4,7 +4,8 @@ from optparse import make_option
 from django.db.models.loading import get_model
 from django.core.management.base import BaseCommand, CommandError
 
-from cuff.models import Experiment, Sample, Replicate, RunInfo, ExpStat
+from cuff.models import (Experiment, Sample, Replicate, RunInfo,
+    ExpStat, PromoterDiffData, SplicingDiffData, CDSDiffData)
 
 # The filenames from cuffdiff output
 RUNINFO_FILE = 'run.info'
@@ -76,6 +77,10 @@ class Command(BaseCommand):
         data_track is *data, *diff, etc.
         '''
         track_model = get_model('cuff', model_track)
+        if model_track == 'tss':
+            track_field = 'tss_group'
+        else:
+            track_field = model_track
         if data_track == 'diffdata':
             # these are 3 special cases where we have distribution
             # level diff data
@@ -85,14 +90,11 @@ class Command(BaseCommand):
                 data_model = SplicingDiffData
             elif model_track == 'cds':
                 data_model = CDSDiffData
+                track_field = 'gene'
         else:
             data_model = get_model('cuff', 
                 '{track}{data}'.format(track=model_track, data=data_track)
                 )
-        if model_track == 'tss':
-            track_field = 'tss_group'
-        else:
-            track_field = model_track
         return track_model, data_model, track_field
     
     def _track_melt(self, model, track_id_field, data):
@@ -367,25 +369,26 @@ class Command(BaseCommand):
         else:
             raise CommandError('%s .diff file is missing!' % track)
         # Optional
+        diff_count = 0
         if 'promoter' in kwargs and track == 'gene':
             promoter = kwargs.get('promoter')
             if os.path.exists(promoter):
                 self.stdout.write('\t... processing promoters.diff ...')
-                self._process_diff('gene', promoter, diff='diffdata')
+                diff_count = self._process_diff('gene', promoter, diff='diffdata')
             else:
                 raise CommandError('Promoters .diff file is missing!')
         if 'splicing' in kwargs and track == 'tss':
             splicing = kwargs.get('splicing')
             if os.path.exists(splicing):
                 self.stdout.write('\t... processing splicing.diff ...')
-                self._process_diff('tss', splicing, 'diffdata')
+                diff_count = self._process_diff('tss', splicing, 'diffdata')
             else:
                 raise CommandError('Splicing .diff file is missing!')
         if 'cds_diff' in kwargs and track == 'cds':
             cds_diff = kwargs.get('cds_diff')
             if os.path.exists(cds_diff):
                 self.stdout.write('\t... processing CDS .diff ...')
-                self._process_diff('cds', cds_diff, 'diffdata')
+                diff_count = self._process_diff('cds', cds_diff, 'diffdata')
             else:
                 raise CommandError('CDS .diff file is missing!')
                 
@@ -400,6 +403,7 @@ class Command(BaseCommand):
                 self.stdout.write('\t... processing .read_group_tracking file ...')
                 self._process_replicate(track, replicate)
         self.stdout.write('Finished processing %s track.' % track)
+        return track_count, diff_count
         
     def import_gtf(self, file):
         pass
