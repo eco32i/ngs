@@ -2,7 +2,7 @@
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
+ALLOWED_HOSTS = ['64.34.218.22', '127.0.0.1', 'ngs.nudlerlab.info',]
 ADMINS = (
      ('Ilya Shamovsky', 'ilya.shamovsky@nyumc.org'),
 )
@@ -61,6 +61,9 @@ STATIC_ROOT = '/var/www/static/'
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'
+
+LOGIN_REDIRECT_URL = '/cuff/'
+LOGIN_URL = '/login/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}cuffbase{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cuff.css" />
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+        {% block extrastyle %}{% endblock %}
+    </head>
+
+    <body class="{% block bodyclass %}{% endblock %}">
+        {% block navigation %}
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="brand" href="{% url 'cuff_home_view' %}">cuffbase</a>
+                    <ul class="nav">
+                        <li>
+                            <a href="{% url 'login_view' %}">LOGIN</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+        <!-- Container -->
+        <div class="container">
+            <!-- Content -->
+            <div class="span6 offset3">
+            {% block content %}{% endblock %}
+            </div>
+            <!-- END Content -->
+        </div>
+        <!-- END Container -->
+    </body>
+
+</html>

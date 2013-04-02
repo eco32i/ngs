@@ -627,7 +627,7 @@ class IsoformReplicateData(ReplicateData, IsoformTrackMixin):
 # Dist level data
 #
 
-class CDSDiffData(DiffData, GeneTrackMixin):
+class RelCDSDiffData(DiffData, GeneTrackMixin):
     gene = models.ForeignKey(Gene, to_field='track_pk')
     js_dist = models.FloatField()
     
