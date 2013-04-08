@@ -73,7 +73,10 @@ class TrackView(ListView):
             track_base = track_base.upper()
         if track_base in ['promoter', 'splicing', 'relcds']:
             track_model = '{base}diffdata'.format(base=track_base)
-            track_form_class = '{base}DiffDataFilterForm'.format(base=capfirst(track_base))
+            if track_base in ['promoter', 'relcds',]:
+                track_form_class = 'GeneExpDiffDataFilterForm'
+            else:
+                track_form_class = 'TSSExpDiffDataFilterForm'
         elif track_data in ['data', 'count']:
             track_model = '{base}{data}'.format(base=track_base,data=track_data)
             track_form_class = '{base}{data}FilterForm'.format(
@@ -96,6 +99,7 @@ class TrackView(ListView):
         except AttributeError:
             self.form_class = None
         # TODO: Need to get rid of hardcoded app name!
+        print track_form_class
         self.model = get_model('cuff', track_model)
         
         
