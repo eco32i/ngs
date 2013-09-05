@@ -1,4 +1,3 @@
-from django.db import models
 from django.db.models.loading import get_model
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
@@ -9,7 +8,6 @@ from cuff.models import Experiment
 
 ALLOWED_LOOKUPS = ('iexact', 'icontains', 'in', 'gt', 'gte', 'lt',
     'lte', 'istratswith', 'iendswith', 'range', 'isnull', 'iregex')
-
 
 class TrackView(ListView):
     template_name = 'cuff/track.html'
@@ -50,7 +48,6 @@ class TrackView(ListView):
             return self.form_class()
         else:
             return None
-
 
     def get_context_data(self,  **kwargs):
         context = super(TrackView, self).get_context_data(**kwargs)
@@ -99,7 +96,7 @@ class TrackView(ListView):
         except AttributeError:
             self.form_class = None
         # TODO: Need to get rid of hardcoded app name!
-        print track_form_class
+        # print track_form_class
         self.model = get_model('cuff', track_model)
         
         
