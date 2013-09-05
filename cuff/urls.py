@@ -27,12 +27,7 @@ urlpatterns = patterns('',
         name='track_base_view'),
     url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/(?P<data>\w+)/$', login_required(views.TrackView.as_view()),
         name='track_data_view'),
-        
-    #~ url(r'^exp/density/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(views.DensityPlot.as_view()),
-        #~ name='density_plot_view'),
-    #~ url(r'^exp/dispersion/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(views.DispersionPlot.as_view()),
-        #~ name='dispersion_plot_view'),
-        
+    # Plot urls
     url(r'^exp/density/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DensityPlotView.as_view()),
         name='density_plot_view'),
     url(r'^exp/dispersion/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DispersionPlotView.as_view()),

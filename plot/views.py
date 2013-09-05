@@ -139,25 +139,30 @@ class DensityPlotView(QuerysetPlotView):
         return get_model('cuff', '{0}Data'.format(self.kwargs['track']))
         
     def make_plot(self):
-        df = self.get_dataframe()[self.data_fields[0]] + 1
-        df = df.map(math.log10)
-        # TODO: set number of points as an attribute
-        base = np.linspace(0, max(df), 100)
-        
+        c_map = ['#268bd2', '#cb4b16',]
         fig = plt.figure()
         fig.patch.set_alpha(0)
         ax = fig.add_subplot(111)
         
-        ax.legend()
         ax.set_xlabel('log$_{10}$(FPKM+1)')
         ax.set_ylabel('Density')
         ax.title.set_fontsize(18)
-        kde = gaussian_kde(df)
-        kde_pdf = kde.evaluate(base)
-        plt.plot(base, kde_pdf, color='#268bd2', alpha=0.8)
-        ax.fill_between(base, kde_pdf, color="#268bd2", alpha=0.4)
+        
+        for i,sample in enumerate(self.exp.sample_set.all()):
+            df = self.get_dataframe(sample)[self.data_fields[0]] + 1
+            df = df.map(math.log10)
+            base = np.linspace(0, max(df), 100)
+            kde = gaussian_kde(df)
+            kde_pdf = kde.evaluate(base)
+            ax.plot(base, kde_pdf,
+                color=c_map[i],
+                label=sample.sample_name,
+                alpha=0.8)
+            ax.fill_between(base, kde_pdf, color=c_map[i], alpha=0.4)
+        ax.legend()
         rstyle(ax)
         return fig
+
 
 class DispersionPlotView(QuerysetPlotView):
     data_fields = ['count', 'dispersion',]
