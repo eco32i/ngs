@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block track_head %}
-    {% render_track_header fields %}
+    {% for field in fields %}{% render_header_field field %}{% endfor %}
 {% endblock %}
 
 

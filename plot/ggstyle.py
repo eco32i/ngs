@@ -33,8 +33,8 @@ def rstyle(ax):
     Must be called after all plot and axis manipulation operations have been carried out (needs to know final tick spacing)
     """
     #set the style of the major and minor grid lines, filled blocks
-    ax.grid(True, 'major', color='w', linestyle='-', linewidth=1.4)
-    ax.grid(True, 'minor', color='0.92', linestyle='-', linewidth=0.7)
+    ax.grid(True, 'major', color='#fdf6e3', linestyle='-', linewidth=1.4)
+    ax.grid(True, 'minor', color='#eee8d5', linestyle='-', linewidth=0.7)
     ax.patch.set_facecolor('0.85')
     ax.set_axisbelow(True)
     

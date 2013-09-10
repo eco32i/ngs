@@ -1,4 +1,4 @@
-import math
+import math, sys
 import numpy as np
 import pandas as pd
 
@@ -89,22 +89,23 @@ class QuerysetPlotView(ListView, PlotMixin):
 
 
 class VolcanoPlotView(QuerysetPlotView):
-    data_fields = ['log2_fold_change', 'p_value', 'significant',]
+    data_fields = ['log2_fold_change', 'p_value', 'q_value',]
     format = 'png'
+    alpha = 0.05
     
     def _get_model_from_track(self):
         # FIXME: Needs to be fixed for distribution level data
         track = self.kwargs['track']
         return get_model('cuff', '{0}ExpDiffData'.format(track))
-    
+
     def make_plot(self):
         df = self.get_dataframe()
         df = df[df['p_value'] > 0]
         df['p_value'] = -1 * df['p_value'].map(math.log10)
-        # We need this (arbitrary) cutoff to avoid
-        # ValueError from NaN to int conversion
-        df = df[df['log2_fold_change'] < 100]
-        df = df[df['log2_fold_change'] > -100]
+        # This is somewhat arbitrary
+        max_ = sys.float_info.max * 0.1
+        df = df[df['log2_fold_change'] < max_]
+        df = df[df['log2_fold_change'] > -max_]
         fig = plt.figure()
         fig.patch.set_alpha(0)
         ax = fig.add_subplot(111)
@@ -113,11 +114,9 @@ class VolcanoPlotView(QuerysetPlotView):
         ax.set_xlabel('log$_{2}$(fold change)')
         ax.set_ylabel('-log$_{10}$(p value)')
         ax.title.set_fontsize(18)
-        df_sig = df[df['significant'] == 'yes']
-        df_nonsig = df[df['significant'] == 'no']
+        df_sig = df[df['q_value'] <= self.alpha]
+        df_nonsig = df[df['q_value'] > self.alpha]
         
-        # colors = np.where(df['significant'] == 'yes', 'r', 'b')
-        # ax.plot(df['log2_fold_change'], df['p_value'], 'o', color='#268bd2', alpha=0.2)
         ax.plot(df_sig['log2_fold_change'], df_sig['p_value'], 'o',
             color='#cb4b16',
             label='significant',

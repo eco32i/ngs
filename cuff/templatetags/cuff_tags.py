@@ -7,12 +7,6 @@ from django.utils.http import urlencode
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
-def render_track_header(context, fields):
-    th_tmpl = '<th>{field}</th>'
-    return ''.join([th_tmpl.format(field=f.replace('_',' ')) for f in fields])
-
-
-@register.simple_tag(takes_context=True)
 def render_track_obj(context, obj):
     fields = obj._meta.list_display
     td_tmpl = '<td>{field}</td>'
@@ -21,7 +15,7 @@ def render_track_obj(context, obj):
 
 
 @register.inclusion_tag('cuff/includes/th_sort.html', takes_context=True)
-def sort_by(context, field, text):
+def render_header_field(context, field):
     request = context['request']
     params = request.GET.copy()
     ordering = params.pop('o', [])
@@ -37,7 +31,7 @@ def sort_by(context, field, text):
     return {
         'css': css,
         'href': '?%s' % urlencode({'o': url_param,}),
-        'link': text,
+        'link': field.replace('_', ' '),
         }
 
 @register.inclusion_tag('cuff/includes/track_menu.html', takes_context=True)
