@@ -23,7 +23,9 @@ Example usage:
     rstyle(ax)
     plt.show()
 
-@author: ilya
+This whole thing is probably obsolete with the inclusion of ggplot 
+style to matplotlib.
+
 """
 from pylab import *
 from matplotlib.ticker import AutoMinorLocator

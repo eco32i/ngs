@@ -17,9 +17,6 @@
         </form>
     </div>
     <div class="span12">
-        <div><img src="{% url 'density_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/></div>
-        <div><img src="{% url 'dispersion_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/></div>
-        <div><img src="{% url 'volcano_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/></div>
         <table class="table table-bordered">
             <thead>
                 <tr>{% block track_head %}{% endblock %}</tr>

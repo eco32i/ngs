@@ -1,0 +1,30 @@
+{% extends 'cuff/base.html' %}
+{% load pagination_tags cuff_tags %}
+{% block navigation %}
+    {% include 'cuff/includes/navbar_track.html' %}
+{% endblock %}
+{% block breadcrumbs %}
+    {% crumbs %}
+{% endblock %}
+{% block content %}
+    <ul class="thumbnails">
+        <li class="span4">
+            <a href="#" class="thumbnail">
+                <img src="{% url 'density_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
+                <h3>{{ view.kwargs.track }} track density plot</h3>
+            </a>
+        </li>
+        <li class="span4">
+            <a href="#" class="thumbnail">
+                <img src="{% url 'dispersion_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
+                <h3>{{ view.kwargs.track }} track dispersion plot</h3>
+            </a>
+        </li>
+        <li class="span4">
+            <a href="#" class="thumbnail">
+                <img src="{% url 'volcano_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
+                <h3>{{ view.kwargs.track }} track volcano plot</h3>
+            </a>
+        </li>
+    </ul>
+{% endblock %}

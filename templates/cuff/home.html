@@ -26,43 +26,19 @@
         </div>
         {% if exp_stat.experiment.description %}<p>{{ exp_stat.experiment.description }} </p>{% endif %}
         
-        
         <hr class="soften"/>
-        {% with exp_stat.experiment.pk as pk %}
         <div class="row-fluid">
-            <div class="span3">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='gene' %}">Genes</a></h2>
-                <p>{{ exp_stat.gene_count }} genes</p>
-            </div>
-            <div class="span3">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='isoform' %}">Isoforms</a></h2>
-                <p>{{ exp_stat.isoform_count }} isoforms</p>
-            </div>
-            <div class="span3">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='tss' %}">TSS</a></h2>
-                <p>{{ exp_stat.tss_count }} TSS groups</p>
-            </div>
-            <div class="span3">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='cds' %}">CDS</a></h2>
-                <p>{{ exp_stat.cds_count }} CDSs</p>
-            </div>
+            <div class="span3">{% render_track_summary 'gene' %}</div>
+            <div class="span3">{% render_track_summary 'isoform' %}</div>
+            <div class="span3">{% render_track_summary 'tss' %}</div>
+            <div class="span3">{% render_track_summary 'cds' %}</div>
         </div>
         <hr class="soften"/>
         <div class="row-fluid">
-            <div class="span4">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='promoter' %}">Promoters</a></h2>
-                <p>{{ exp_stat.promoter_count }} promoters</p>
-            </div>
-            <div class="span4">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='splicing' %}">Splicing</a></h2>
-                <p>{{ exp_stat.splicing_count }} splice variants</p>
-            </div>
-            <div class="span4">
-                <h2><a href="{% url 'track_base_view' exp_pk=pk track='relcds' %}">Rel CDS</a></h2>
-                <p>{{ exp_stat.relcds_count }} rel CDS</p>
-            </div>
+            <div class="span4">{% render_track_summary 'promoter' %}</div>
+            <div class="span4">{% render_track_summary 'splicing' %}</div>
+            <div class="span4">{% render_track_summary 'relcds' %}</div>
         </div>
-        {% endwith %}
         <hr class="soften"/>
         
     </div>

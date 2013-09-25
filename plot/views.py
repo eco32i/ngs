@@ -88,40 +88,72 @@ class QuerysetPlotView(ListView, PlotMixin):
         return self.render_to_plot(context, **response_kwargs)
 
 
+class BarPlotView(QuerysetPlotView):
+    data_fields = ['fpkm', 'conf_hi', 'conf_lo',]
+    format = 'png'
+    
+    def _get_model_from_track(self):
+        track = self.kwargs['track']
+        return get_model('cuff', '{0}Data'.format(track))
+    
+    def _get_gene_short_names(self):
+        return self.object_list.values_list('gene__gene_short_name', flat=True)
+        
+    def make_plot(self):
+        df = self.get_dataframe()
+        df['gene_name'] = self._get_gene_short_names()
+        
+        fig = plt.figure()
+        fig.patch.set_alpha(0)
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('Genes')
+        ax.set_ylabel('FPKM')
+        ax.title.set_fontsize(18)
+        ax.bar(df['gene_name'], df['fpkm'], yerr=df['conf_hi'])
+        rstyle(ax)
+        return fig
+        
+        
 class VolcanoPlotView(QuerysetPlotView):
-    data_fields = ['log2_fold_change', 'p_value', 'q_value',]
+    data_fields = ['log2_fold_change', 'js_dist', 'p_value', 'q_value']
     format = 'png'
     alpha = 0.05
     
     def _get_model_from_track(self):
-        # FIXME: Needs to be fixed for distribution level data
         track = self.kwargs['track']
-        return get_model('cuff', '{0}ExpDiffData'.format(track))
+        if track in ['splicing', 'promoter', 'relcds']:
+            diff_data = 'DiffData'
+        else:
+            diff_data = 'ExpDiffData'
+        return get_model('cuff', '{0}{1}'.format(track, diff_data))
 
     def make_plot(self):
+        if self.kwargs['track'] in ['splicing', 'promoter', 'relcds']:
+            x_field = 'js_dist'
+        else:
+            x_field = 'log2_fold_change'
         df = self.get_dataframe()
         df = df[df['p_value'] > 0]
         df['p_value'] = -1 * df['p_value'].map(math.log10)
         # This is somewhat arbitrary
         max_ = sys.float_info.max * 0.1
-        df = df[df['log2_fold_change'] < max_]
-        df = df[df['log2_fold_change'] > -max_]
+        df = df[df[x_field] < max_]
+        df = df[df[x_field] > -max_]
         fig = plt.figure()
         fig.patch.set_alpha(0)
         ax = fig.add_subplot(111)
         
-        ax.legend()
         ax.set_xlabel('log$_{2}$(fold change)')
         ax.set_ylabel('-log$_{10}$(p value)')
         ax.title.set_fontsize(18)
         df_sig = df[df['q_value'] <= self.alpha]
         df_nonsig = df[df['q_value'] > self.alpha]
         
-        ax.plot(df_sig['log2_fold_change'], df_sig['p_value'], 'o',
+        ax.plot(df_sig[x_field], df_sig['p_value'], 'o',
             color='#cb4b16',
             label='significant',
             alpha=0.45)
-        ax.plot(df_nonsig['log2_fold_change'], df_nonsig['p_value'], 'o',
+        ax.plot(df_nonsig[x_field], df_nonsig['p_value'], 'o',
             color='#268bd2',
             label='not significant',
             alpha=0.2)
