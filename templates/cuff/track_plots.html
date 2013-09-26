@@ -1,5 +1,9 @@
 {% extends 'cuff/base.html' %}
 {% load pagination_tags cuff_tags %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-lightbox.min.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-lightbox.min.js"></script>
+{% endblock %}
 {% block navigation %}
     {% include 'cuff/includes/navbar_track.html' %}
 {% endblock %}
@@ -7,24 +11,28 @@
     {% crumbs %}
 {% endblock %}
 {% block content %}
+    <h2>{{ view.kwargs.track }} track plots</h2>
     <ul class="thumbnails">
         <li class="span4">
-            <a href="#" class="thumbnail">
-                <img src="{% url 'density_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
-                <h3>{{ view.kwargs.track }} track density plot</h3>
-            </a>
+            {% url 'density_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track as density_plot_url %}
+            {% with lightbox_id='density' img_url=density_plot_url %}
+                {% include 'cuff/includes/lightbox.html' %}
+                {% include 'cuff/includes/thumbnail.html' %}
+            {% endwith %}
         </li>
         <li class="span4">
-            <a href="#" class="thumbnail">
-                <img src="{% url 'dispersion_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
-                <h3>{{ view.kwargs.track }} track dispersion plot</h3>
-            </a>
+            {% url 'dispersion_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track as dispersion_plot_url %}
+            {% with lightbox_id='dispersion' img_url=dispersion_plot_url %}
+                {% include 'cuff/includes/lightbox.html' %}
+                {% include 'cuff/includes/thumbnail.html' %}
+            {% endwith %}
         </li>
         <li class="span4">
-            <a href="#" class="thumbnail">
-                <img src="{% url 'volcano_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}"/>
-                <h3>{{ view.kwargs.track }} track volcano plot</h3>
-            </a>
+            {% url 'volcano_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track as volcano_plot_url %}
+            {% with lightbox_id='volcano' img_url=volcano_plot_url %}
+                {% include 'cuff/includes/lightbox.html' %}
+                {% include 'cuff/includes/thumbnail.html' %}
+            {% endwith %}
         </li>
     </ul>
 {% endblock %}

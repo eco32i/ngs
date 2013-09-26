@@ -64,8 +64,8 @@ def track_menu(context, track):
                 'link': '{track} {data}'.format(track=track, data=data),
                 })
     return {'menu_items': li_data,}
-
-
+    
+    
 @register.inclusion_tag('cuff/includes/track_summary.html', takes_context=True)
 def render_track_summary(context, track):
     '''
