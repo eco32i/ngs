@@ -4,7 +4,7 @@ CuffBase
 A Django app that takes the output of the _tophat/cufflinks pipeline: http://tophat.cbcb.umd.edu/, builds
 an SQL database (by default MySQL) in much the same way _cummeRbund: http://compbio.mit.edu/cummeRbund/ does
 and makes it available through the Web interface. Unlike cummeRbund, 
-multiple runs can be stored in the same database.
+multiple pipeline runs can be stored in the same database.
 
 The primary goal of CuffBase is to make the results of cuffdiff pipeline
 accessible for a bench scientist.
@@ -17,6 +17,7 @@ Dependencies
 * _django: http://www.djangoproject.com/
 * _django-pagination: https://pypi.python.org/pypi/django-pagination
 * _matplotlib: http://matplotlib.org/
+* _brewer2mpl: https://github.com/jiffyclub/brewer2mpl.git
 * _pandas (used in plot generation): http://pandas.pydata.org/pandas-docs/stable/
 * _gunicorn: http://gunicorn.org -- for easy deployment
 * data from the tophat/cufflinks pipeline (bunch of text files)
@@ -26,6 +27,13 @@ Deployment
 
 The recommended way to deploy CuffBase is to setup Apache2 or Gunicorn
 behind Nginx server.
+
+Qiuck start
+============
+You need to set up your database and specify relevant information (backend,
+username, and password) in the ngs/settings.py file before trying to
+import cuffdiff output results.
+
 
 Caveats and limitations
 =======================

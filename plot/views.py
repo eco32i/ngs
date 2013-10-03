@@ -1,13 +1,14 @@
 import math, sys
 import numpy as np
 import pandas as pd
+import brewer2mpl
 
 from pylab import figure, plot
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
 
 from django.http import HttpResponse
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, FieldError
 from django.db.models.loading import get_model
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
@@ -89,27 +90,67 @@ class QuerysetPlotView(ListView, PlotMixin):
 
 
 class BarPlotView(QuerysetPlotView):
-    data_fields = ['fpkm', 'conf_hi', 'conf_lo',]
+    data_fields = ['fpkm', 'sample', 'conf_hi', 'conf_lo',]
     format = 'png'
+    pk_list = None
     
     def _get_model_from_track(self):
         track = self.kwargs['track']
         return get_model('cuff', '{0}Data'.format(track))
     
     def _get_gene_short_names(self):
-        return self.object_list.values_list('gene__gene_short_name', flat=True)
-        
+        gene_name_field = 'gene__gene_short_name'
+        track = self.kwargs['track'].lower()
+        if track == 'tss':
+            gene_name_field = 'tss_group__{0}'.format(gene_name_field)
+        elif track != 'gene':
+            gene_name_field = '{0}__{1}'.format(track, gene_name_field)
+        return self.object_list.values_list(gene_name_field, flat=True)
+    
+    def get_queryset(self):
+        qs = super(BarPlotView, self).get_queryset()
+        if self.pk_list:
+            return qs.filter(pk__in=self.pk_list)
+        else:
+            return qs
+    
+    def get(self, request, *args, **kwargs):
+        gene_pks = request.GET.get('genes')
+        self.pk_list = [int(x) for x in gene_pks.split(',')]
+        return super(BarPlotView, self).get(request, *args, **kwargs)
+    
     def make_plot(self):
-        df = self.get_dataframe()
-        df['gene_name'] = self._get_gene_short_names()
-        
         fig = plt.figure()
         fig.patch.set_alpha(0)
         ax = fig.add_subplot(111)
         ax.set_xlabel('Genes')
         ax.set_ylabel('FPKM')
         ax.title.set_fontsize(18)
-        ax.bar(df['gene_name'], df['fpkm'], yerr=df['conf_hi'])
+        
+        cmap = brewer2mpl.get_map('Set2', 'qualitative', 8).mpl_colors
+        
+        gene_names = self._get_gene_short_names()
+        num_exp = self.exp.sample_set.count()
+        bar_width = 1. / num_exp
+        
+        
+        # We plot separately for each sample in the experiment
+        for i,sample in enumerate(self.exp.sample_set.all()):
+            df = self.get_dataframe(sample=sample)
+            index = np.arange(df.shape[0])
+            ax.bar(index + i*bar_width, df['fpkm'],
+                width=bar_width,
+                yerr=[df['fpkm']-df['conf_lo'], df['conf_hi']-df['fpkm']],
+                error_kw={'ecolor': cmap[i],},
+                label=sample.sample_name,
+                color=cmap[i],
+                edgecolor=cmap[i],
+                alpha=0.45)
+        
+        plt.xticks(np.arange(self.object_list.count() // num_exp),
+            [name for i,name in enumerate(gene_names) if i % num_exp == 0])
+        plt.legend()
+        plt.tight_layout()
         rstyle(ax)
         return fig
         

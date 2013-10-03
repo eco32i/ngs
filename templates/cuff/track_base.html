@@ -8,10 +8,14 @@
 {% endblock %}
 {% block content %}
     <div class="span12">
+        {% if plot_qs %}
+            <img src="{% url 'bar_plot_view' exp_pk=view.kwargs.exp_pk track=view.kwargs.track %}?genes={{ pk_list|join:',' }}"/>
+        {% endif %}
         <form class="form-inline" action="." method="GET">
             <fieldset>
                 {% block filters %}{% endblock %}
                 <button type="submit" class="btn btn-info">Filter</button>
+                <button type="submit" class="btn btn-success" name="_plot">Plot</button>
                 <button type="submit" class="btn" value="_clear">Clear</button>
             </fieldset>
         </form>

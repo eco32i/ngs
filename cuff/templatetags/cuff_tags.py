@@ -5,6 +5,7 @@ from django.utils.http import urlencode
 
 register = template.Library()
 
+
 @register.simple_tag
 def render_track_obj(obj):
     '''

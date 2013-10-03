@@ -1,7 +1,7 @@
 from django.db.models.loading import get_model
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 from django.utils.encoding import smart_str
 from django.utils.text import capfirst
 
@@ -10,18 +10,6 @@ from cuff.models import Experiment
 ALLOWED_LOOKUPS = ('iexact', 'icontains', 'in', 'gt', 'gte', 'lt',
     'lte', 'istratswith', 'iendswith', 'range', 'isnull', 'iregex')
 
-#~ class TrackView(View):
-    #~ def get(self, request, *args, **kwargs):
-        #~ view = TrackListView.as_view()
-        #~ return view(request, *args, **kwargs)
-        #~ 
-    #~ def post(self, request, *args, **kwargs):
-        #~ if '_plot' in request.POST:
-            #~ view = TrackBarPlotView.as_view()
-        #~ return view(request, *args, **kwargs)
-        
-        
-# class TrackBarPlotView(edit.FormView, list.MultipleObject
 
 class TrackPlotsView(TemplateView):
     template_name = 'cuff/track_plots.html'
@@ -35,6 +23,7 @@ class TrackPlotsView(TemplateView):
 
 class TrackView(ListView):
     template_name = 'cuff/track.html'
+    plot_qs = False
     
     def __init__(self, **kwargs):
         super(TrackView, self).__init__(**kwargs)
@@ -83,6 +72,11 @@ class TrackView(ListView):
             'form': self.get_form(),
             'exp': self.exp,
             })
+        if self.plot_qs:
+            context.update({
+                'plot_qs': self.plot_qs,
+                'pk_list': [int(x) for x in self.object_list.values_list('pk', flat=True)],
+            })
         return context
 
     def _set_options(self):
@@ -119,8 +113,6 @@ class TrackView(ListView):
             self.form_class = getattr(cf, track_form_class)
         except AttributeError:
             self.form_class = None
-        # TODO: Need to get rid of hardcoded app name!
-        # print track_form_class
         self.model = get_model('cuff', track_model)
         
         
@@ -133,5 +125,8 @@ class TrackView(ListView):
         else:
             filters = self._get_filters(request)
             self.filters.update(filters)
+            if '_plot' in request.GET:
+                # TODO: Enable plotting only for TrackData
+                self.plot_qs = True
             #self.ordering = self._get_ordering(request)
         return super(TrackView, self).get(request, *args, **kwargs)

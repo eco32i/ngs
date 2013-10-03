@@ -36,6 +36,9 @@ urlpatterns = patterns('',
     #    name='density_plot_view'),
     url(r'^plots/exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(views.TrackPlotsView.as_view()),
         name='track_plots_view'),
+    
+    url(r'^plots/bar/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.BarPlotView.as_view()),
+        name='bar_plot_view'),
         
     url(r'^exp/density/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DensityPlotView.as_view()),
         name='density_plot_view'),
