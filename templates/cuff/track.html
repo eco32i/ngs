@@ -1,7 +1,7 @@
 {% extends 'cuff/track_base.html' %}
 {% load cuff_tags %}
 {% block filters %}
-    {% for field in form %}{{ field }}{% endfor %}
+    {% for field in form %}{{ field }} {% endfor %}
 {% endblock %}
 
 {% block track_head %}
