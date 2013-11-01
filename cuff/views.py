@@ -84,7 +84,7 @@ class TrackView(ListView):
         track_base = self.kwargs['track']
         track_data = self.kwargs.get('data', '')
         if track_base in ['cds', 'tss']:
-            # This is case-sensitive to get the form class later
+            # This needs to be case-sensitive to get the form class later
             track_base = track_base.upper()
         if track_base in ['promoter', 'splicing', 'relcds']:
             track_model = '{base}diffdata'.format(base=track_base)

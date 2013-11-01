@@ -3,6 +3,8 @@
 local_*.py
 /media/**
 *.sql
+*.gz
+*.geany
 
 # Ignore all the virtualenv stuff except the actual packages
 /bin

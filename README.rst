@@ -7,7 +7,7 @@ and makes it available through the Web interface. Unlike cummeRbund,
 multiple pipeline runs can be stored in the same database.
 
 The primary goal of CuffBase is to make the results of cuffdiff pipeline
-accessible for a bench scientist.
+accessible to a bench scientist.
 
 Provides _very limited_ plotting facilities via matplotlib.
 
@@ -25,8 +25,9 @@ Dependencies
 Deployment
 ===========
 
-The recommended way to deploy CuffBase is to setup Apache2 or Gunicorn
-behind Nginx server.
+The recommended way to deploy CuffBase is to setup mod_wsgi in Apache2 or Gunicorn
+behind Nginx server. See ngs/settings.py file for the settings that need
+to be configured.
 
 Qiuck start
 ============
@@ -57,6 +58,10 @@ to load the example database from the provided sql dump:
 to import the cuffdiff output run this from the cuffbase directory:
 
     $ ./manage.py import_exp <path-to-cuffdiff-output>
+
+to see available options for the ``import_exp`` command:
+
+    $ ./manage.py import_exp --help
 
 to start development server locally run this from the cuffbase directory:
 
