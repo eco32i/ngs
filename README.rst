@@ -1,71 +1,83 @@
 CuffBase
 ========
 
-A Django project that takes the output of the _tophat/cufflinks pipeline: http://tophat.cbcb.umd.edu/, builds
-an SQL database (by default MySQL) in much the same way _cummeRbund: http://compbio.mit.edu/cummeRbund/ does
+A Django project that takes the output of the `tophat/cufflinks pipeline <http://tophat.cbcb.umd.edu/>`_, builds
+an SQL database (by default MySQL) in much the same way `cummeRbund <http://compbio.mit.edu/cummeRbund/>`_ does
 and makes it available through the Web interface. Unlike cummeRbund, 
 multiple pipeline runs can be stored in the same database.
 
 The primary goal of CuffBase is to make the results of cuffdiff pipeline
 accessible to a bench scientist.
 
-Provides _very limited_ plotting facilities via matplotlib.
+Provides *very limited* plotting facilities via matplotlib.
 
 Dependencies
 =============
 
-* _django: http://www.djangoproject.com/
-* _django-pagination: https://pypi.python.org/pypi/django-pagination
-* _matplotlib: http://matplotlib.org/
-* _brewer2mpl: https://github.com/jiffyclub/brewer2mpl.git
-* _pandas (used in plot generation): http://pandas.pydata.org/pandas-docs/stable/
-* _gunicorn: http://gunicorn.org -- for easy deployment
+* `django <http://www.djangoproject.com/>`_
+* `django-pagination <https://pypi.python.org/pypi/django-pagination>`_
+* `matplotlib <http://matplotlib.org/>`_
+* `brewer2mpl <https://github.com/jiffyclub/brewer2mpl.git>`_
+* `pandas <http://pandas.pydata.org/pandas-docs/stable/>`_ (used in plot generation)
+* `gunicorn <http://gunicorn.org>`_ -- for easy deployment
 * data from the tophat/cufflinks pipeline (bunch of tab-delimited text files)
 
 Deployment
 ===========
 
 The recommended way to deploy CuffBase is to setup mod_wsgi in Apache2 or Gunicorn
-behind Nginx server. See ngs/settings.py file for the settings that need
+behind Nginx server. See ``ngs/settings.py`` file for the settings that need
 to be configured.
 
-Qiuck start
+Quick start
 ============
 You need to set up your database and specify relevant information (backend,
 username, and password) in the ngs/settings.py file before trying to
 import cuffdiff output results. For example, if using MySQL:
 
-    mysql> create database <database-name> default charset utf8 collate utf8_general_ci;
-    mysql> grant all on <database-name>.* to <user>@localhost identified by <password>;
+    ::
+    
+        mysql> create database <database-name> default charset utf8 collate utf8_general_ci;
+        mysql> grant all on <database-name>.* to <user>@localhost identified by <password>;
     
 and then the databases section of your ``ngs/settings.py`` file should read:
     
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': '<database-name>',
-            'USER': '<user>',
-            'PASSWORD': '<password>',
-            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
+    ::
+    
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': '<database-name>',
+                'USER': '<user>',
+                'PASSWORD': '<password>',
+                'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+                'PORT': '',                      # Set to empty string for default.
+            }
         }
-    }
 
 to load the example database from the provided sql dump:
 
-    $ gunzip -c ngs-dump-1.gz | mysql -u<user> -p<password> <database-name>
+    ::
+    
+        $ gunzip -c ngs-dump-1.gz | mysql -u<user> -p<password> <database-name>
 
 to import the cuffdiff output run this from the cuffbase directory:
 
-    $ ./manage.py import_exp <path-to-cuffdiff-output>
+    ::
+    
+        $ ./manage.py import_exp <path-to-cuffdiff-output>
 
 to see available options for the ``import_exp`` command:
 
-    $ ./manage.py import_exp --help
+    ::
+    
+        $ ./manage.py import_exp --help
 
 to start development server locally run this from the cuffbase directory:
 
-    $ ./manage.py runserver --insecure
+    ::
+    
+        $ ./manage.py runserver --insecure
 
 and cuffbase should be accessible in your browser at ``http://localhost:8080/cuff``
 
@@ -77,8 +89,7 @@ of string pks in cummeRbund to make it play nicely with Django ORM. In
 addition, PhenoData, Feature, and Attribute tables are basically
 placeholders. Not sure what to make of them.
 
-* no tests -- the project was concieved as an ad-hoc solution with little
-consideration for future maintenance (I wasn't sure it'd work at all!)
+* no tests -- the project was concieved as an ad-hoc solution with little consideration for future maintenance (I wasn't sure it'd work at all!)
 * tests are sorely needed -- will be the first priority in moving forward
 * no docs -- same as the tests
 * not tested with anything but MySQL 5.5
