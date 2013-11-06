@@ -216,14 +216,15 @@ class DensityPlotView(QuerysetPlotView):
         fig.patch.set_alpha(0)
         ax = fig.add_subplot(111)
         
-        ax.set_xlabel('log$_{10}$(FPKM+1)')
+        ax.set_xlabel('log$_{10}$(FPKM)')
         ax.set_ylabel('Density')
         ax.title.set_fontsize(18)
         
         for i,sample in enumerate(self.exp.sample_set.all()):
-            df = self.get_dataframe(sample)[self.data_fields[0]] + 1
+            df = self.get_dataframe(sample)[self.data_fields[0]]
+            df = df[df > 0]
             df = df.map(math.log10)
-            base = np.linspace(0, max(df), 100)
+            base = np.linspace(min(df), max(df), 200)
             kde = gaussian_kde(df)
             kde_pdf = kde.evaluate(base)
             ax.plot(base, kde_pdf,
