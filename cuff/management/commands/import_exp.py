@@ -5,7 +5,7 @@ from django.db.models.loading import get_model
 from django.core.management.base import BaseCommand, CommandError
 
 from cuff.models import (Experiment, Sample, Replicate, RunInfo,
-    ExpStat, PromoterDiffData, SplicingDiffData, CDSDiffData)
+    Gene, TSS, ExpStat, PromoterDiffData, SplicingDiffData, CDSDiffData)
 
 # The filenames from cuffdiff output
 RUNINFO_FILE = 'run.info'
@@ -101,32 +101,34 @@ class Command(BaseCommand):
 
         def is_foreign_key(model, field):
             field, m, direct, m2m = model._meta.get_field_by_name(field)
-            if field.rel and direct:
-                return True
-            else:
-                return False
+            return field.rel and direct
 
         fields = model._meta.get_all_field_names()
         kwargs = {'experiment': self.exp,}
-        # FIXME: (probably) Need k.lower()
         for k,v in data.items():
+            if k.endswith('_id'):
+                # Handle foreign keys and primary keys here
+                key_base, dummy = k.split('_id')
+                if key_base == 'tss':
+                    key_base = 'tss_group'
+                if k == 'tracking_id':
+                    # k is tracking id -- compute track_pk and set track_id field
+                    track_key = '{track}_id'.format(track=track_id_field)
+                    kwargs.update({
+                        track_key: v,
+                        # This is an ugly way of getting composite pk.
+                        'track_pk': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),
+                        })
+                elif key_base in fields and is_foreign_key(model, key_base):
+                    # k is a foreign key to either gene or tss_group
+                    kwargs.update({
+                        '{0}_id'.format(key_base): '{base_id}-exp-{exp_id}'.format(
+                            base_id=v,exp_id=self.exp.pk),
+                        })
             # '-' denotes NA value
-            # There are two special cases: gene_id and tss_id fields
-            # They are ignored for the same track or treated as
-            # ForeignKey otherwise
-            if k == 'tracking_id':
-                track_key = '{track}_id'.format(track=track_id_field)
-                kwargs.update({
-                    track_key: v,
-                    # This is an ugly way of getting composite pk.
-                    'track_pk': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),
-                    })
             elif k in fields and v != '-':
+                # k is just a regular field
                 kwargs.update({k: v,})
-            elif k == 'gene_id' and 'gene' in fields: # and not model is Gene:
-                kwargs.update({'gene_id': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),})
-            elif k == 'tss_id' and 'tss_group' in fields: # and not model is TSS:
-                kwargs.update({'tss_group_id': '{base_id}-exp-{exp_id}'.format(base_id=v,exp_id=self.exp.pk),})
         return model(**kwargs)
     
     def _data_melt(self, model, track_id_field, sample_names, data):
@@ -149,7 +151,7 @@ class Command(BaseCommand):
         for m in melts:
             m['sample_id'] += '-exp-{exp_pk}'.format(exp_pk=self.exp.pk)
         return [model(**kwargs) for kwargs in melts]
-    
+        
     def _process_fpkm(self, track, file):
         # Get track model, data model, track_id field and related lookup
         track_model, data_model, track_id = self._get_track(track, 'data')
