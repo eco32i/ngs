@@ -174,7 +174,6 @@ class VolcanoPlotView(QuerysetPlotView):
         else:
             x_field = 'log2_fold_change'
         df = self.get_dataframe()
-        print df
         df = df[df['p_value'] > 0]
         df['p_value'] = -1 * df['p_value'].map(math.log10)
         # This is somewhat arbitrary

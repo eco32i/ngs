@@ -125,7 +125,7 @@ class TrackView(ListView):
         else:
             filters = self._get_filters(request)
             self.filters.update(filters)
-            if '_plot' in request.GET:
+            if '_plot' in request.GET and self.filters:
                 # TODO: Enable plotting only for TrackData
                 self.plot_qs = True
             #self.ordering = self._get_ordering(request)

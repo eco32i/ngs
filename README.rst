@@ -10,7 +10,7 @@ Provides *very limited* plotting facilities via matplotlib.
 Dependencies
 =============
 
-* `django <http://www.djangoproject.com/>`_
+* `django <http://www.djangoproject.com/>`_ version 1.6.
 * `django-pagination <https://pypi.python.org/pypi/django-pagination>`_
 * `matplotlib <http://matplotlib.org/>`_
 * `brewer2mpl <https://github.com/jiffyclub/brewer2mpl.git>`_
