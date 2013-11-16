@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from django.views.generic.list import ListView
-#from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 
 from cuff.models import ExpStat
 from cuff import views
@@ -18,14 +18,14 @@ from plot import views as plt_views
 
 urlpatterns = patterns('',
     # Home page - list of experiments
-    url(r'^$', ListView.as_view(
+    url(r'^$', login_required(ListView.as_view(
         model=ExpStat,
-        template_name='cuff/home.html'),
+        template_name='cuff/home.html')),
         name='cuff_home_view'),
     # Track urls
-    url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', views.TrackView.as_view(),
+    url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(views.TrackView.as_view()),
         name='track_base_view'),
-    url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/(?P<data>\w+)/$', views.TrackView.as_view(),
+    url(r'^exp/(?P<exp_pk>\d+)/(?P<track>\w+)/(?P<data>\w+)/$', login_required(views.TrackView.as_view()),
         name='track_data_view'),
     # Plot urls
     # TODO: put the plots into some key:value store (redis?) for fast
@@ -34,17 +34,17 @@ urlpatterns = patterns('',
     # Track level plots: density, dispersion, SCV, (volcano?)
     #url(r'^exp/plot/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DensityPlotView.as_view()),
     #    name='density_plot_view'),
-    url(r'^plots/exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', views.TrackPlotsView.as_view(),
+    url(r'^plots/exp/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(views.TrackPlotsView.as_view()),
         name='track_plots_view'),
     
-    url(r'^plots/bar/(?P<exp_pk>\d+)/(?P<track>\w+)/$', plt_views.BarPlotView.as_view(),
+    url(r'^plots/bar/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.BarPlotView.as_view()),
         name='bar_plot_view'),
         
-    url(r'^exp/density/(?P<exp_pk>\d+)/(?P<track>\w+)/$', plt_views.DensityPlotView.as_view(),
+    url(r'^exp/density/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DensityPlotView.as_view()),
         name='density_plot_view'),
-    url(r'^exp/dispersion/(?P<exp_pk>\d+)/(?P<track>\w+)/$', plt_views.DispersionPlotView.as_view(),
+    url(r'^exp/dispersion/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.DispersionPlotView.as_view()),
         name='dispersion_plot_view'),
-    url(r'^exp/volcano/(?P<exp_pk>\d+)/(?P<track>\w+)/$', plt_views.VolcanoPlotView.as_view(),
+    url(r'^exp/volcano/(?P<exp_pk>\d+)/(?P<track>\w+)/$', login_required(plt_views.VolcanoPlotView.as_view()),
         name='volcano_plot_view'),
         
 )
