@@ -98,6 +98,10 @@ class Command(BaseCommand):
         return track_model, data_model, track_field
     
     def _track_melt(self, model, track_id_field, data):
+        '''
+        Processes a record from <track>.fpkm_tracking file to populate <TrackBase> table.
+        (Gene, TSS, Isoform, CDS)
+        '''
 
         def is_foreign_key(model, field):
             field, m, direct, m2m = model._meta.get_field_by_name(field)
@@ -133,6 +137,9 @@ class Command(BaseCommand):
     
     def _data_melt(self, model, track_id_field, sample_names, data):
         '''
+        Processes a record from <track>.fpkm_tracking file to populate <Track>Data table.
+        (GeneData, TSSData, CDSData, IsoformData)
+        
         Kinda sorta analogous to dataframe.melt function in R.
         '''
         fields = self._get_track_fields(model)

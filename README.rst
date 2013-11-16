@@ -1,13 +1,9 @@
 CuffBase
 ========
 
-A Django project that takes the output of the `tophat/cufflinks pipeline <http://tophat.cbcb.umd.edu/>`_, builds
-an SQL database (by default MySQL) in much the same way `cummeRbund <http://compbio.mit.edu/cummeRbund/>`_ does
-and makes it available through the Web interface. Unlike cummeRbund, 
-multiple pipeline runs can be stored in the same database.
+A Django-based frontend for the persistent storage, analysis and visualization of the output of tophat/cufflinks pipeline. CuffBase takes the output of the `tophat/cufflinks pipeline <http://tophat.cbcb.umd.edu/>`_, builds an SQL database (by default MySQL) in much the same way `cummeRbund <http://compbio.mit.edu/cummeRbund/>`_ does and makes it available through the Web interface. Unlike cummeRbund, multiple pipeline runs can be stored in the same database.
 
-The primary goal of CuffBase is to make the results of cuffdiff pipeline
-accessible to a bench scientist.
+The primary goal of CuffBase is to make the results of cuffdiff pipeline accessible to a bench scientist.
 
 Provides *very limited* plotting facilities via matplotlib.
 
@@ -25,9 +21,7 @@ Dependencies
 Deployment
 ===========
 
-The recommended way to deploy CuffBase is to setup mod_wsgi in Apache2 or Gunicorn
-behind Nginx server. See ``ngs/settings.py`` file for the settings that need
-to be configured.
+The recommended way to deploy CuffBase is to setup mod_wsgi in Apache2 or Gunicorn behind Nginx server. See ``ngs/settings.py`` file for the settings that need to be configured.
 
 Quick start
 ============
@@ -95,12 +89,17 @@ placeholders. Not sure what to make of them.
 * not tested with anything but MySQL 5.5
 * it was only tested on full cuffdiff output
 
+Because objects are created in bulk during the initial import, foreign key check fails when using InnoDB storage engine with MySQL database. The workaround is to either use MyISAM storage engine (include ``default-storage-engine = MyISAM`` in your ``/etc/mysql/my.cnf`` file prior to creating the databse) or turn off foreign key check for InnoDB engine on per-session basis.
+
+Make sure to increase the ``maximum_packet_size`` parameter in ``/etc/mysql/my.cnf`` to somewhere around 64M, otherwise mysql will choke on importing big(ish) datasets.
+
 Future plans
 ============
 
+* refactor ``import_exp`` management command to use ``pandas``.
 * interactive plotting with Bokeh
 * tests
 * docs (mostly on deployment)
-* port to Python 3 (should be easy?)
+* port to Python 3 (should be easy for anything but MySQL?)
 * IPython notebook integration?
 
