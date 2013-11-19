@@ -5,6 +5,7 @@ local_*.py
 *.sql
 *.gz
 *.geany
+*.sublime-*
 
 # Ignore all the virtualenv stuff except the actual packages
 /bin

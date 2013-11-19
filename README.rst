@@ -5,10 +5,11 @@ A Django-based frontend for the persistent storage, analysis and visualization o
 
 The primary goal of CuffBase is to make the results of cuffdiff pipeline accessible to a bench scientist.
 
-Provides *very limited* plotting facilities via matplotlib.
+Provides (so far) *very limited* plotting facilities via matplotlib.
 
 Dependencies
 =============
+It's probably a good idea to manage these by setting up a virtual environment
 
 * `django <http://www.djangoproject.com/>`_ version 1.6.
 * `django-pagination <https://pypi.python.org/pypi/django-pagination>`_
@@ -26,7 +27,7 @@ The recommended way to deploy CuffBase is to setup mod_wsgi in Apache2 or Gunico
 Quick start
 ============
 You need to set up your database and specify relevant information (backend,
-username, and password) in the ngs/settings.py file before trying to
+username, and password) in the ``ngs/settings.py`` file before trying to
 import cuffdiff output results. For example, if using MySQL:
 
     ::
@@ -48,6 +49,8 @@ and then the databases section of your ``ngs/settings.py`` file should read:
                 'PORT': '',                      # Set to empty string for default.
             }
         }
+
+The live demo is up at `http://demo.nudlerlab.info/cuff <http://demo.nudlerlab.info/cuff>`_. The site has a link to the mysql dump of the example data if you want to download and play with it locally.
 
 to load the example database from the provided sql dump:
 
@@ -88,10 +91,9 @@ placeholders. Not sure what to make of them.
 * no docs -- same as the tests
 * not tested with anything but MySQL 5.5
 * it was only tested on full cuffdiff output
-
-Because objects are created in bulk during the initial import, foreign key check fails when using InnoDB storage engine with MySQL database. The workaround is to either use MyISAM storage engine (include ``default-storage-engine = MyISAM`` in your ``/etc/mysql/my.cnf`` file prior to creating the databse) or turn off foreign key check for InnoDB engine on per-session basis.
-
-Make sure to increase the ``maximum_packet_size`` parameter in ``/etc/mysql/my.cnf`` to somewhere around 64M, otherwise mysql will choke on importing big(ish) datasets.
+* you will probably need a machine (or VPS) instance with at least 2 GB RAM. On a 4 GB, 4-core AMD desktop, importing the example dataset takes close to 5 min. This is slower than cummeRbund, but not by a large margin.
+* because objects are created in bulk during the initial import, foreign key check fails when using InnoDB storage engine with MySQL database. The workaround is to either use MyISAM storage engine (include ``default-storage-engine = MyISAM`` in your ``/etc/mysql/my.cnf`` file prior to creating the databse) or turn off foreign key check for InnoDB engine on per-session basis.
+* make sure to increase the ``maximum_packet_size`` parameter in ``/etc/mysql/my.cnf`` to somewhere around 64M, otherwise mysql will choke on importing big(ish) datasets.
 
 Future plans
 ============
