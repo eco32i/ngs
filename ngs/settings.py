@@ -7,7 +7,7 @@ try:
     from secret_key import *
 except ImportError:
     SETTINGS_DIR = os.path.abspath(os.path.dirname(__file__))
-    generate_secret_key(os.path.join(SETTINGS_DIR, 'secred_key.py'))
+    generate_secret_key(os.path.join(SETTINGS_DIR, 'secret_key.py'))
     from secret_key import *
 
 DEBUG = True
