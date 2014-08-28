@@ -1,5 +1,15 @@
 # Django settings for ngs project.
 
+import os
+from keygen import generate_secret_key
+# Generate SECRET_KEY and save it to the local file
+try:
+    from secret_key import *
+except ImportError:
+    SETTINGS_DIR = os.path.abspath(os.path.dirname(__file__))
+    generate_secret_key(os.path.join(SETTINGS_DIR, 'secred_key.py'))
+    from secret_key import *
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 # Needs to be set in production when DEBUG = False
