@@ -50,7 +50,7 @@ and then the databases section of your ``ngs/settings.py`` file should read:
             }
         }
 
-The live demo is up at `http://demo.nudlerlab.info/cuff <http://demo.nudlerlab.info/cuff>`_. The site has a link to the mysql dump of the example data if you want to download and play with it locally.
+The live demo is up at `http://ngs.nudlerlab.info/demo/ <http://ngs.nudlerlab.info/demo/>`_. The site has a link to the mysql dump of the example data if you want to download and play with it locally.
 
 to load the example database from the provided sql dump:
 
